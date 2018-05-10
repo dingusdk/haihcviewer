@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{963394b2-9c70-4516-b95a-a54789c8c1a7}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>main.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>Global|PythonCore|3.5</InterpreterId>
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <CommandLineArguments>-c $(SolutionDir) --runner</CommandLineArguments>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+    <TypeScriptToolsVersion>2.5</TypeScriptToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|PythonCore|3.5" />
+    <InterpreterReference Include="Global|PythonCore|3.6" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="custom_components\" />
+    <Folder Include="custom_components\alarm_conntrol_panel\" />
+    <Folder Include="custom_components\climate\" />
+    <Folder Include="custom_components\cover\" />
+    <Folder Include="custom_components\ihcviewer\" />
+    <Folder Include="custom_components\ihcviewer\frontend\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="custom_components\alarm_conntrol_panel\ihc.py" />
+    <Compile Include="custom_components\climate\ihc.py" />
+    <Compile Include="custom_components\cover\ihc.py" />
+    <Compile Include="custom_components\ihcviewer\__init__.py" />
+    <Compile Include="main.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="custom_components\ihcviewer\frontend\ihcproject.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="configuration.yaml" />
+    <Content Include="custom_components\ihcviewer\frontend\ihc-tree-node.html" />
+    <Content Include="custom_components\ihcviewer\frontend\ihc-tree-node.js" />
+    <Content Include="custom_components\ihcviewer\panel.html" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>

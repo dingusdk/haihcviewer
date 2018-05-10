@@ -1,0 +1,264 @@
+<link rel="import" href="/ihcviewer/ihc-tree-node.html" />
+
+<dom-module id='ha-panel-ihcviewer'>
+  <template>
+    <style include="ha-style ihc-tree-node">
+      .content {
+        margin-left: 0;
+      }
+      #ihcprojecttree {
+        display: inline-block;
+        padding-bottom: 100px;
+      }
+      #ihcproperties {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        height: 100px;
+        background-color: white;
+        padding-top: 5px;
+        padding-left: 20px;
+        width: 100%;
+        font-size: 14px;
+        border-top: solid 1px lightgray;
+      }
+    </style>
+    <app-header-layout has-scrolling-region>
+      <app-header slot="header" fixed>
+        <app-toolbar>
+          <ha-menu-button narrow='[[narrow]]' show-menu='[[showMenu]]'></ha-menu-button>
+          <div main-title>IHC Viewer</div>
+        </app-toolbar>
+        <paper-tabs selected="{{selectedtab}}" scrollable>
+          <paper-tab>Project</paper-tab>
+          <paper-tab>Log</paper-tab>
+        </paper-tabs>
+      </app-header>
+      <div class='content'>
+        <iron-pages selected="{{selectedtab}}">
+          <div>
+            <div hidden$='[[!isProjectLoading]]'>
+              <paper-spinner active='[[isProjectLoading]]' alt='Loading IHC project'></paper-spinner>
+            </div>
+            <div id="ihcprojecttree">
+              <ul>
+                <template is="dom-repeat" items="{{ihcproject.Groups}}" as="group">
+                  <ihc-tree-node data="{{group}}"></ihc-tree-node>
+                </template>
+              </ul>
+            </div>
+            <template is="dom-if" if="{{selected}}">
+              <div id="ihcproperties">
+                <div>
+                  <span>Resource id:</span><span> {{selected.data.Id}}</span>
+                </div>
+                <div>
+                  <span>Type:</span><span> {{selectedtype}}</span>
+                </div>
+                <div>
+                  <span>Value:</span><span> {{selectedvalue}}</span>
+                </div>
+              </div>
+            </template>
+          </div>
+          <div>
+            <span slot='introduction'>
+              IHC controller log:
+            </span>
+            <div hidden$='[[!isLogLoading]]'>
+              <paper-spinner active='[[isLogLoading]]' alt='Loading IHC project'></paper-spinner>
+            </div>
+            <pre id="ihc_log" hidden$='[[isLogLoading]]'>{{log}}</pre>
+          </div>
+        </iron-pages>
+      </div>
+    </app-header-layout>
+  </template>
+</dom-module>
+
+<script src="/ihcviewer/jquery-2.2.3.min.js" type="text/javascript"></script>
+<script src="/ihcviewer/ihcproject.js" type="text/javascript"></script>
+<script>
+  var instance = null;
+
+  class IhcResourceNode extends Polymer.Element {
+    static get is() { return 'ihc-resource'; }
+    static get properties() {
+      return {
+        data: {
+          type: Object,
+        },
+        expanded: {
+          type: Boolean,
+        },
+        iconclass: {
+          type: String,
+        },
+        expandclass: {
+          type: String,
+        }
+      }
+    }
+
+    select() {
+      instance.selectedresource = this.data;
+      instance.selectedtype = "";
+      instance.selectedvalue = "";
+      $.ajax({
+        type: 'GET',
+        url: '/api/ihc/getvalue',
+        async: true,
+        data: { 'id': this.data.Id },
+        cache: false,
+        success: (result) => {
+          instance.selectedtype = result.type;
+          instance.selectedvalue = result.value;
+        },
+      });
+    }
+  }
+
+  class HaPanelIHCViewer extends Polymer.Element {
+    static get is() { return 'ha-panel-ihcviewer'; }
+
+    static get properties() {
+      return {
+        // Home Assistant object
+        hass: Object,
+        // If should render in narrow mode
+        narrow: {
+          type: Boolean,
+          value: false,
+        },
+        // If sidebar is currently shown
+        showMenu: {
+          type: Boolean,
+          value: false,
+        },
+        // Home Assistant panel info
+        // panel.config contains config passed to register_panel serverside
+        panel: Object,
+        log: {
+          type: String,
+        },
+        isProjectLoading: {
+          type: Boolean,
+        },
+        isLogLoading: {
+          type: Boolean,
+        },
+        selectedtab: {
+          type: Number,
+        },
+        ihcproject: {
+          type: Object,
+        },
+        selected: {
+          type: Object,
+          value: null,
+          notify: true
+        },
+        selectedtype: {
+          type: String,
+        },
+        selectedvalue: {
+          type: Object
+        }
+      };
+    }
+    constructor() {
+      super();
+      instance = this;
+      this.isProjectLoading = false;
+      this.isLogLoading = false;
+      this.log = "";
+      this.selectedtab = 0;
+      this.ihcproject = null;
+      this.selectedresource = null;
+    }
+
+    connectedCallback() {
+      super.connectedCallback();
+      this.isProjectLoading = true;
+      $.get("/api/ihc/project?api_password=" + this.hass.connection.options.authToken, (result) => {
+        var project = new IHCProject(result);
+        for (let group of project.Groups) {
+          group.iconclass = "groupicon";
+          group.Children = [];
+          for (let product of group.Products) {
+            group.Children.push(product);
+            product.iconclass = "producticon";
+            product.Children = [];
+            for (let input of product.Inputs) {
+              product.Children.push(input);
+              input.iconclass = "inputicon";
+            }
+            for (let output of product.Outputs) {
+              product.Children.push(output);
+              output.iconclass = "outputicon";
+            }
+          }
+          for (let fn of group.FunctionBlocks) {
+            group.Children.push(fn);
+            fn.iconclass = "functionicon";
+            fn.Children = [];
+            for (let input of fn.Inputs) {
+              fn.Children.push(input);
+              input.iconclass = "inputicon";
+            }
+            for (let output of fn.Outputs) {
+              fn.Children.push(output);
+              output.iconclass = "outputicon";
+            }
+          }
+        }
+        this.ihcproject = project;
+        this.isProjectLoading = false;
+        this.isLogLoading = true;
+        $.ajax({
+          url: '/api/ihc/log?api_password=' + this.hass.connection.options.authToken,
+          async: true,
+          success: (result) => {
+            this.log = result
+            this.isLogLoading = false;
+          },
+        });
+      });
+    }
+
+    ready() {
+      super.ready();
+      this.addEventListener('select',this._OnSelectNode);
+    }
+
+    _OnSelectNode(e) {
+      if (this.selected) {
+        this.selected.selected = false;
+        this.selected = null;
+      }
+      var node = e.detail.node;
+      if (!(node.data instanceof IHCResource)) {
+        this.selected = null;
+        return false;
+      }
+      this.selected = e.detail.node;
+      if (this.selected == null) return false;
+      this.selected.selected = true;
+      this.selectedtype = "";
+      this.selectedvalue = "";
+      $.ajax({
+        type: 'GET',
+        url: '/api/ihc/getvalue?api_password=' + this.hass.connection.options.authToken,
+        async: true,
+        data: { 'id': this.selected.data.Id },
+        cache: false,
+        success: (result) => {
+          this.selectedtype = result.type;
+          this.selectedvalue = result.value;
+        },
+      });
+      return false;
+    }
+  }
+  customElements.define(HaPanelIHCViewer.is, HaPanelIHCViewer);
+</script>

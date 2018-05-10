@@ -1,0 +1,89 @@
+<dom-module id='ihc-tree-node'>
+  <template>
+    <style>
+      .treeicon {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        background-repeat: no-repeat;
+        background-image: url( "/ihcviewer/icons.png");
+        vertical-align: middle;
+      }
+      .groupicon {
+        background-position: -32px 0;
+      }
+      .producticon {
+        background-position: -176px 0;
+      }
+
+      .functionicon {
+        background-position: -160px 0;
+      }
+
+      .inputicon {
+        background-position: -48px 0;
+      }
+
+      .outputicon {
+        background-position: -64px 0;
+      }
+
+      .expandicon {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        background-repeat: no-repeat;
+        background-image: url( "/ihcviewer/icons.png");
+        cursor: pointer;
+        vertical-align: middle;
+      }
+      .expandicon.expanded {
+        background-position: -16px 0;
+      }
+      .treenode {
+      }
+      .treenode.selected {
+        background-color: lightblue;
+      }
+      .treetext {
+        cursor: default;
+        font-size: 18px;
+        vertical-align: middle;
+      }
+      .treeinfo {
+        font-size: 0.8em;
+      }
+      div.treenode ul {
+        margin-top: 0;
+      }
+    </style>
+    <div class$="treenode {{getSelectedClasses(selected)}}">
+      <span style="display:flex; flex-direction:row">
+        <span>
+          <template is="dom-if" if="{{data.Children}}">
+            <span class$="{{getExpandClasses(expanded)}}" on-click="toggleExpand"></span>
+          </template>
+          <span class$="treeicon {{data.iconclass}}"></span>
+        </span>
+        <span style="display:flex; flex-direction:column">
+          <span class="treetext" on-click="select">{{data.Name}}</span>
+          <template is="dom-if" if="{{data.Note}}">
+            <span class="treeinfo">Note: {{data.Note}}</span>
+          </template>
+          <template is="dom-if" if="{{data.Position}}">
+            <span class="treeinfo">Position: {{data.Position}}</span>
+          </template>
+        </span>
+      </span>
+      <template is="dom-if" if="{{expanded}}">
+        <ul>
+          <template is="dom-repeat" items="{{data.Children}}" as="child">
+            <ihc-tree-node data="{{child}}"></ihc-tree-node>
+          </template>
+        </ul>
+      </template>
+    </div>
+  </template>
+</dom-module>
+
+<script src="ihc-tree-node.js" type="text/javascript"></script>
