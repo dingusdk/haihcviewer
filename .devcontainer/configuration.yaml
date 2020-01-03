@@ -1,6 +1,6 @@
 default_config:
 ihc:
-    - url: 'http://192.168.1.10'
-        username: !secret ihc_username
-        password: !secret ihc_password
+  - url: "http://192.168.1.10"
+    username: admin
+    password:
 ihcviewer:

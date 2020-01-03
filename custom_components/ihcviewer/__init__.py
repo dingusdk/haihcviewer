@@ -3,6 +3,7 @@ IHC Viever component.
 
 see http://www.dingus.dk for more information
 """
+import logging
 import asyncio
 import base64
 import os.path
@@ -13,32 +14,53 @@ from homeassistant.components.ihc import (
     IHC_DATA, IHC_CONTROLLER)
 from homeassistant.components.http import HomeAssistantView
 
-REQUIREMENTS = ['ihcsdk==2.1.1']
+REQUIREMENTS = ['ihcsdk==2.3.0']
 DEPENDENCIES = ['ihc']
 
 DOMAIN = 'ihcviewer'
 
+_LOGGER = logging.getLogger(__name__)
 
-@asyncio.coroutine
-def async_setup(hass, config):
+async def async_setup(hass, config):
     """Setup the IHC viewer component."""
     conf = config[DOMAIN]
-    ihc_controller = hass.data[IHC_DATA][IHC_CONTROLLER]
+    ihc_controller = hass.data[IHC_DATA.format(0)][IHC_CONTROLLER]
     hass.http.register_view(IHCLogView(ihc_controller))
     hass.http.register_view(IHCProjectView(ihc_controller))
     hass.http.register_view(IHCGetValue(ihc_controller))
 
     register_frontend(hass)
 
-    panelpath = os.path.join(os.path.dirname(__file__), 'panel.html')
+    name = "panel"
+    filename = 'panel.html'
 
-    yield from hass.components.frontend.async_register_panel(
-        component_name='ihcviewer',
-        path=panelpath,
-        frontend_url_path='ihcviewer',
+    panelpath = os.path.join(os.path.dirname(__file__), filename)
+    html_url = "/api/ihcviewer/{}".format(name)
+    hass.http.register_static_path(html_url, panelpath)
+
+    custom_panel_config = {
+        "name": "ihcviewer",
+        "embed_iframe": False,
+        "trust_external": False,
+        "html_url": html_url
+    }
+
+    if conf is not None:
+        # Make copy because we're mutating it
+        conf = dict(conf)
+    else:
+        conf = {}
+
+    conf["_panel_custom"] = custom_panel_config
+
+    hass.components.frontend.async_register_built_in_panel(
+        component_name='custom',
+        frontend_url_path='ihc-viewer',
         sidebar_title='IHC Viewer',
         sidebar_icon='mdi:file-tree',
-        config=conf)
+        config=conf,
+        require_admin=True,
+    )
 
     return True
 
