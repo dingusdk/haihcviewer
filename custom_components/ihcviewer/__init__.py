@@ -10,16 +10,16 @@ import os.path
 from aiohttp import web
 
 import homeassistant.core as ha
-from homeassistant.components.ihc import (
-    IHC_DATA, IHC_CONTROLLER)
+from homeassistant.components.ihc import IHC_DATA, IHC_CONTROLLER
 from homeassistant.components.http import HomeAssistantView
 
-REQUIREMENTS = ['ihcsdk==2.3.0']
-DEPENDENCIES = ['ihc']
+REQUIREMENTS = ["ihcsdk==2.3.0"]
+DEPENDENCIES = ["ihc"]
 
-DOMAIN = 'ihcviewer'
+DOMAIN = "ihcviewer"
 
 _LOGGER = logging.getLogger(__name__)
+
 
 async def async_setup(hass, config):
     """Setup the IHC viewer component."""
@@ -32,7 +32,7 @@ async def async_setup(hass, config):
     register_frontend(hass)
 
     name = "panel"
-    filename = 'panel.html'
+    filename = "panel.html"
 
     panelpath = os.path.join(os.path.dirname(__file__), filename)
     html_url = "/api/ihcviewer/{}".format(name)
@@ -42,7 +42,7 @@ async def async_setup(hass, config):
         "name": "ihcviewer",
         "embed_iframe": False,
         "trust_external": False,
-        "html_url": html_url
+        "html_url": html_url,
     }
 
     if conf is not None:
@@ -54,10 +54,10 @@ async def async_setup(hass, config):
     conf["_panel_custom"] = custom_panel_config
 
     hass.components.frontend.async_register_built_in_panel(
-        component_name='custom',
-        frontend_url_path='ihc-viewer',
-        sidebar_title='IHC Viewer',
-        sidebar_icon='mdi:file-tree',
+        component_name="custom",
+        frontend_url_path="ihc-viewer",
+        sidebar_title="IHC Viewer",
+        sidebar_icon="mdi:file-tree",
         config=conf,
         require_admin=True,
     )
@@ -67,14 +67,15 @@ async def async_setup(hass, config):
 
 def register_frontend(hass):
     """Register frontend static files."""
-    path = os.path.join(os.path.dirname(__file__), 'frontend')
+    path = os.path.join(os.path.dirname(__file__), "frontend")
     dirlist = os.listdir(path)
     for filename in dirlist:
         ext = os.path.splitext(filename)[1].lower()
-        if ext == '.png' or ext == '.html' or ext == '.js':
+        if ext == ".png" or ext == ".html" or ext == ".js":
             hass.http.register_static_path(
-                url_path='/ihcviewer/{}'.format(filename),
-                path=os.path.join(path, filename))
+                url_path="/ihcviewer/{}".format(filename),
+                path=os.path.join(path, filename),
+            )
 
 
 class IHCLogView(HomeAssistantView):
@@ -96,25 +97,31 @@ class IHCLogView(HomeAssistantView):
         log = self.get_user_log(language="en")
         return self.json(log)
 
-    ihcns = {'SOAP-ENV': "http://schemas.xmlsoap.org/soap/envelope/",
-             'ns1': 'utcs',
-             'ns2': 'utcs.values',
-             'ns3': 'utcs.values'}
+    ihcns = {
+        "SOAP-ENV": "http://schemas.xmlsoap.org/soap/envelope/",
+        "ns1": "utcs",
+        "ns2": "utcs.values",
+        "ns3": "utcs.values",
+    }
 
     def get_user_log(self, language="en"):
         """Get the controller state."""
         payload = """<getUserLog1 xmlns="utcs" />
                      <getUserLog2 xmlns="utcs">0</getUserLog2>
                      <getUserLog3 xmlns="utcs">{language}</getUserLog3>
-                     """.format(language=language)
+                     """.format(
+            language=language
+        )
         xdoc = self.ihc_controller.client.connection.soap_action(
-            '/ws/ConfigurationService', 'getUserLog', payload)
-        if xdoc:
-            base64data = xdoc.find('./SOAP-ENV:Body/ns1:getUserLog4/ns1:data',
-                                   IHCLogView.ihcns).text
+            "/ws/ConfigurationService", "getUserLog", payload
+        )
+        if xdoc is not None:
+            base64data = xdoc.find(
+                "./SOAP-ENV:Body/ns1:getUserLog4/ns1:data", IHCLogView.ihcns
+            ).text
             if not base64data:
                 return False
-            return base64.b64decode(base64data).decode('UTF-8')
+            return base64.b64decode(base64data).decode("UTF-8")
         return False
 
 
@@ -136,7 +143,8 @@ class IHCProjectView(HomeAssistantView):
         """Retrieve IHC project."""
         project = self.ihc_controller.get_project()
         return web.Response(
-            body=project, content_type="text/xml", charset='utf-8', status=200)
+            body=project, content_type="text/xml", charset="utf-8", status=200
+        )
 
 
 class IHCGetValue(HomeAssistantView):
@@ -156,9 +164,6 @@ class IHCGetValue(HomeAssistantView):
     def get(self, request):
         """Get runtime value from IHC controller."""
         data = request.query
-        id = int(data.get('id'))
+        id = int(data.get("id"))
         value = self.ihc_controller.client.get_runtime_value(id)
-        return self.json({
-            "value": value,
-            "type": type(value).__name__
-            })
+        return self.json({"value": value, "type": type(value).__name__})
