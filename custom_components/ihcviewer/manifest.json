@@ -1,4 +1,5 @@
 {
+  "codeowners": ["@dingusdk,@msvinth"],
   "dependencies": ["frontend", "lovelace", "ihc"],
   "domain": "ihcviewer",
   "homeassistant": "0.103.0",
