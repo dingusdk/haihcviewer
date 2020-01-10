@@ -29,7 +29,7 @@ And you can view your IHC project:
 ## Contribute to project and developing with a [devcontainer](https://code.visualstudio.com/docs/remote/containers)
 
 1. Fork and clone the repository.
-2. Open in VSCode and open in a devcontainer.
+2. Open in VSCode and choose to open in devcontainer. Must have [VSCode devcontainer prerequisites](https://code.visualstudio.com/docs/remote/containers#_getting-started).
 3. Create a secrets.yaml file in .devcontainer/secrets.yaml with content
 
    ```yaml
