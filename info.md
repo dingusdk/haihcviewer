@@ -10,4 +10,4 @@ To use it, in the configuration.yaml file insert this:
 ihcviewer:
 ```
 
-And you will of course need to have [IHC configured in Home Assistant](https://www.home-assistant.io/integrations/ihc/).
+And you MUST have [IHC configured in Home Assistant](https://www.home-assistant.io/integrations/ihc/).

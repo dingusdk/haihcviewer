@@ -16,7 +16,7 @@ Either way, in the configuration.yaml file insert this:
 ihcviewer:
 ```
 
-And you will of course need to have [IHC configured in Home Assistant](https://www.home-assistant.io/integrations/ihc/).
+And you MUST have [IHC configured in Home Assistant](https://www.home-assistant.io/integrations/ihc/).
 
 You will get a new menu item:
 
@@ -26,10 +26,10 @@ And you can view your IHC project:
 
 ![treeview](images/treeview.png)
 
-## Contribute to project and developing with [devcontainer]
+## Contribute to project and developing with a devcontainer
 
 1. Fork and clone the repository.
-2. Open in VSCode and open in [devcontainer].
+2. Open in VSCode and open in a devcontainer.
 3. Create a secrets file in .devcontainer/secrets.yaml with content
 
    ```yaml
