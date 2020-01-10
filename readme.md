@@ -1,3 +1,5 @@
+# Home Assistant IHC Viewer
+
 This is a IHC viewer custom component for Home Assistant.
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
@@ -23,7 +25,22 @@ And you can view your IHC project:
 
 ![treeview](images/treeview.png)
 
-# License
+## Contribute to project and developing with [devcontainer]
+
+1. Fork and clone the repository.
+2. Open in VSCode and open in [devcontainer].
+3. Create a secrets file in .devcontainer/secrets.yaml with content
+
+   ```yaml
+   ihc_url: "http://192.168.1.3" # Your IHC address
+   ihc_username: YOUR_USERNAME
+   ihc_password: YOUR_PASSWORD
+   ```
+
+4. Run the command `dc start` from VSCode terminal
+5. Home Assistant test instance will install and will eventually be running on port `9123`
+
+## License
 
 IHC Viewer is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
