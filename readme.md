@@ -6,7 +6,7 @@ This is a IHC viewer custom component for Home Assistant.
 
 [Read more about on my blog here](https://www.dingus.dk/ihc-viewer-for-home-assistant/)
 
-To use it, the easist way is to install it with HACS. Add this repo as a Custom Repository in HACS and install it.
+To use it, the easist way is to install it with [HACS](https://hacs.xyz). Add this repo as a Custom Repository in HACS and install it.
 
 Without HACS you will have to place the custom_components folder in your HA configuration folder.
 
@@ -26,11 +26,11 @@ And you can view your IHC project:
 
 ![treeview](images/treeview.png)
 
-## Contribute to project and developing with a devcontainer
+## Contribute to project and developing with a [devcontainer](https://code.visualstudio.com/docs/remote/containers)
 
 1. Fork and clone the repository.
 2. Open in VSCode and open in a devcontainer.
-3. Create a secrets file in .devcontainer/secrets.yaml with content
+3. Create a secrets.yaml file in .devcontainer/secrets.yaml with content
 
    ```yaml
    ihc_url: "http://192.168.1.3" # Your IHC address
