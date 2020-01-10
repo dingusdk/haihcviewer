@@ -7,6 +7,7 @@ This is a IHC viewer custom component for Home Assistant.
 [Read more about on my blog here](https://www.dingus.dk/ihc-viewer-for-home-assistant/)
 
 To use it, the easist way is to install it with HACS. Add this repo as a Custom Repository in HACS and install it.
+
 Without HACS you will have to place the custom_components folder in your HA configuration folder.
 
 Either way, in the configuration.yaml file insert this:
