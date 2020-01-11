@@ -1,6 +1,6 @@
 <link rel="import" href="/ihcviewer/ihc-tree-node.html" />
 
-<dom-module id='ha-panel-ihcviewer'>
+<dom-module id="ha-panel-ihcviewer">
   <template>
     <style include="ha-style ihc-tree-node">
       .content {
@@ -26,7 +26,10 @@
     <app-header-layout has-scrolling-region>
       <app-header slot="header" fixed>
         <app-toolbar>
-          <ha-menu-button narrow='[[narrow]]' show-menu='[[showMenu]]'></ha-menu-button>
+          <ha-menu-button
+            narrow="[[narrow]]"
+            show-menu="[[showMenu]]"
+          ></ha-menu-button>
           <div main-title>IHC Viewer</div>
         </app-toolbar>
         <paper-tabs selected="{{selectedtab}}" scrollable>
@@ -34,15 +37,22 @@
           <paper-tab>Log</paper-tab>
         </paper-tabs>
       </app-header>
-      <div class='content'>
+      <div class="content">
         <iron-pages selected="{{selectedtab}}">
           <div>
-            <div hidden$='[[!isProjectLoading]]'>
-              <paper-spinner active='[[isProjectLoading]]' alt='Loading IHC project'></paper-spinner>
+            <div hidden$="[[!isProjectLoading]]">
+              <paper-spinner
+                active="[[isProjectLoading]]"
+                alt="Loading IHC project"
+              ></paper-spinner>
             </div>
             <div id="ihcprojecttree">
               <ul>
-                <template is="dom-repeat" items="{{ihcproject.Groups}}" as="group">
+                <template
+                  is="dom-repeat"
+                  items="{{ihcproject.Groups}}"
+                  as="group"
+                >
                   <ihc-tree-node data="{{group}}"></ihc-tree-node>
                 </template>
               </ul>
@@ -52,23 +62,22 @@
                 <div>
                   <span>Resource id:</span><span> {{selected.data.Id}}</span>
                 </div>
-                <div>
-                  <span>Type:</span><span> {{selectedtype}}</span>
-                </div>
-                <div>
-                  <span>Value:</span><span> {{selectedvalue}}</span>
-                </div>
+                <div><span>Type:</span><span> {{selectedtype}}</span></div>
+                <div><span>Value:</span><span> {{selectedvalue}}</span></div>
               </div>
             </template>
           </div>
           <div>
-            <span slot='introduction'>
+            <span slot="introduction">
               IHC controller log:
             </span>
-            <div hidden$='[[!isLogLoading]]'>
-              <paper-spinner active='[[isLogLoading]]' alt='Loading IHC project'></paper-spinner>
+            <div hidden$="[[!isLogLoading]]">
+              <paper-spinner
+                active="[[isLogLoading]]"
+                alt="Loading IHC project"
+              ></paper-spinner>
             </div>
-            <pre id="ihc_log" hidden$='[[isLogLoading]]'>{{log}}</pre>
+            <pre id="ihc_log" hidden$="[[isLogLoading]]">{{log}}</pre>
           </div>
         </iron-pages>
       </div>
@@ -82,22 +91,24 @@
   var instance = null;
 
   class IhcResourceNode extends Polymer.Element {
-    static get is() { return 'ihc-resource'; }
+    static get is() {
+      return "ihc-resource";
+    }
     static get properties() {
       return {
         data: {
-          type: Object,
+          type: Object
         },
         expanded: {
-          type: Boolean,
+          type: Boolean
         },
         iconclass: {
-          type: String,
+          type: String
         },
         expandclass: {
-          type: String,
+          type: String
         }
-      }
+      };
     }
 
     select() {
@@ -105,21 +116,23 @@
       instance.selectedtype = "";
       instance.selectedvalue = "";
       $.ajax({
-        type: 'GET',
-        url: '/api/ihc/getvalue',
+        type: "GET",
+        url: "/api/ihc/getvalue",
         async: true,
-        data: { 'id': this.data.Id },
+        data: { id: this.data.Id },
         cache: false,
-        success: (result) => {
+        success: result => {
           instance.selectedtype = result.type;
           instance.selectedvalue = result.value;
-        },
+        }
       });
     }
   }
 
   class HaPanelIHCViewer extends Polymer.Element {
-    static get is() { return 'ha-panel-ihcviewer'; }
+    static get is() {
+      return "ha-panel-ihcviewer";
+    }
 
     static get properties() {
       return {
@@ -128,30 +141,30 @@
         // If should render in narrow mode
         narrow: {
           type: Boolean,
-          value: false,
+          value: false
         },
         // If sidebar is currently shown
         showMenu: {
           type: Boolean,
-          value: false,
+          value: false
         },
         // Home Assistant panel info
         // panel.config contains config passed to register_panel serverside
         panel: Object,
         log: {
-          type: String,
+          type: String
         },
         isProjectLoading: {
-          type: Boolean,
+          type: Boolean
         },
         isLogLoading: {
-          type: Boolean,
+          type: Boolean
         },
         selectedtab: {
-          type: Number,
+          type: Number
         },
         ihcproject: {
-          type: Object,
+          type: Object
         },
         selected: {
           type: Object,
@@ -159,7 +172,7 @@
           notify: true
         },
         selectedtype: {
-          type: String,
+          type: String
         },
         selectedvalue: {
           type: Object
@@ -180,55 +193,69 @@
     connectedCallback() {
       super.connectedCallback();
       this.isProjectLoading = true;
-      $.get("/api/ihc/project?api_password=" + this.hass.connection.options.authToken, (result) => {
-        var project = new IHCProject(result);
-        for (let group of project.Groups) {
-          group.iconclass = "groupicon";
-          group.Children = [];
-          for (let product of group.Products) {
-            group.Children.push(product);
-            product.iconclass = "producticon";
-            product.Children = [];
-            for (let input of product.Inputs) {
-              product.Children.push(input);
-              input.iconclass = "inputicon";
+      $.ajax({
+        type: "GET",
+        url: "/api/ihc/project",
+        headers: {
+          Authorization:
+            "Bearer " + this.hass.connection.options.auth.accessToken
+        },
+        async: true,
+        cache: false,
+        success: result => {
+          var project = new IHCProject(result);
+          for (let group of project.Groups) {
+            group.iconclass = "groupicon";
+            group.Children = [];
+            for (let product of group.Products) {
+              group.Children.push(product);
+              product.iconclass = "producticon";
+              product.Children = [];
+              for (let input of product.Inputs) {
+                product.Children.push(input);
+                input.iconclass = "inputicon";
+              }
+              for (let output of product.Outputs) {
+                product.Children.push(output);
+                output.iconclass = "outputicon";
+              }
             }
-            for (let output of product.Outputs) {
-              product.Children.push(output);
-              output.iconclass = "outputicon";
+            for (let fn of group.FunctionBlocks) {
+              group.Children.push(fn);
+              fn.iconclass = "functionicon";
+              fn.Children = [];
+              for (let input of fn.Inputs) {
+                fn.Children.push(input);
+                input.iconclass = "inputicon";
+              }
+              for (let output of fn.Outputs) {
+                fn.Children.push(output);
+                output.iconclass = "outputicon";
+              }
             }
           }
-          for (let fn of group.FunctionBlocks) {
-            group.Children.push(fn);
-            fn.iconclass = "functionicon";
-            fn.Children = [];
-            for (let input of fn.Inputs) {
-              fn.Children.push(input);
-              input.iconclass = "inputicon";
+          this.ihcproject = project;
+          this.isProjectLoading = false;
+          this.isLogLoading = true;
+          $.ajax({
+            url: "/api/ihc/log",
+            headers: {
+              Authorization:
+                "Bearer " + this.hass.connection.options.auth.accessToken
+            },
+            async: true,
+            success: result => {
+              this.log = result;
+              this.isLogLoading = false;
             }
-            for (let output of fn.Outputs) {
-              fn.Children.push(output);
-              output.iconclass = "outputicon";
-            }
-          }
+          });
         }
-        this.ihcproject = project;
-        this.isProjectLoading = false;
-        this.isLogLoading = true;
-        $.ajax({
-          url: '/api/ihc/log?api_password=' + this.hass.connection.options.authToken,
-          async: true,
-          success: (result) => {
-            this.log = result
-            this.isLogLoading = false;
-          },
-        });
       });
     }
 
     ready() {
       super.ready();
-      this.addEventListener('select',this._OnSelectNode);
+      this.addEventListener("select", this._OnSelectNode);
     }
 
     _OnSelectNode(e) {
@@ -247,15 +274,19 @@
       this.selectedtype = "";
       this.selectedvalue = "";
       $.ajax({
-        type: 'GET',
-        url: '/api/ihc/getvalue?api_password=' + this.hass.connection.options.authToken,
+        type: "GET",
+        url: "/api/ihc/getvalue",
+        headers: {
+          Authorization:
+            "Bearer " + this.hass.connection.options.auth.accessToken
+        },
         async: true,
-        data: { 'id': this.selected.data.Id },
+        data: { id: this.selected.data.Id },
         cache: false,
-        success: (result) => {
+        success: result => {
           this.selectedtype = result.type;
           this.selectedvalue = result.value;
-        },
+        }
       });
       return false;
     }
