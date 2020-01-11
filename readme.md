@@ -26,21 +26,6 @@ And you can view your IHC project:
 
 ![treeview](images/treeview.png)
 
-## Contribute to project and developing with a [devcontainer](https://code.visualstudio.com/docs/remote/containers)
-
-1. Fork and clone the repository.
-2. Open in VSCode and choose to open in devcontainer. Must have [VSCode devcontainer prerequisites](https://code.visualstudio.com/docs/remote/containers#_getting-started).
-3. Create a secrets.yaml file in .devcontainer/secrets.yaml with content
-
-   ```yaml
-   ihc_url: "http://192.168.1.3" # Your IHC address
-   ihc_username: YOUR_USERNAME
-   ihc_password: YOUR_PASSWORD
-   ```
-
-4. Run the command `dc start` from VSCode terminal
-5. Home Assistant test instance will install and will eventually be running on port `9123`
-
 ## License
 
 IHC Viewer is free software: you can redistribute it and/or modify
@@ -55,3 +40,18 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with HAIhc. If not, see <http://www.gnu.org/licenses/>.
+
+## Contribute to project and developing with a [devcontainer](https://code.visualstudio.com/docs/remote/containers)
+
+1. Fork and clone the repository.
+2. Open in VSCode and choose to open in devcontainer. Must have [VSCode devcontainer prerequisites](https://code.visualstudio.com/docs/remote/containers#_getting-started).
+3. Create a secrets.yaml file in .devcontainer/secrets.yaml with content
+
+   ```yaml
+   ihc_url: "http://192.168.1.3" # Your IHC address
+   ihc_username: YOUR_USERNAME
+   ihc_password: YOUR_PASSWORD
+   ```
+
+4. Run the command `dc start` from VSCode terminal
+5. Home Assistant test instance will install and will eventually be running on port `9123`
