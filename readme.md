@@ -26,6 +26,9 @@ And you can view your IHC project:
 
 ![treeview](images/treeview.png)
 
+Use IHC Viewer to get IHC resource ids to be used for manual setup or the ihc service functions.
+
+
 ## License
 
 IHC Viewer is free software: you can redistribute it and/or modify
