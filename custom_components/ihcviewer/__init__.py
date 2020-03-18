@@ -10,7 +10,7 @@ import os.path
 from aiohttp import web
 
 import homeassistant.core as ha
-from homeassistant.components.ihc import IHC_DATA, IHC_CONTROLLER
+from homeassistant.components.ihc import IHC_CONTROLLER
 from homeassistant.components.http import HomeAssistantView
 
 REQUIREMENTS = ["ihcsdk==2.3.0"]
@@ -24,7 +24,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup(hass, config):
     """Setup the IHC viewer component."""
     conf = config[DOMAIN]
-    ihc_controller = hass.data[IHC_DATA.format(0)][IHC_CONTROLLER]
+    ihc_controller = hass.data["ihc0"][IHC_CONTROLLER]
     hass.http.register_view(IHCLogView(ihc_controller))
     hass.http.register_view(IHCProjectView(ihc_controller))
     hass.http.register_view(IHCGetValue(ihc_controller))
