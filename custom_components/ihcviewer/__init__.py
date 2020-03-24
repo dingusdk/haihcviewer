@@ -13,7 +13,7 @@ import homeassistant.core as ha
 from homeassistant.components.ihc import IHC_CONTROLLER
 from homeassistant.components.http import HomeAssistantView
 
-REQUIREMENTS = ["ihcsdk==2.3.0"]
+REQUIREMENTS = ["ihcsdk==2.6.0"]
 DEPENDENCIES = ["ihc"]
 
 DOMAIN = "ihcviewer"

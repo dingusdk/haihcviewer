@@ -2,7 +2,7 @@
   "codeowners": ["@dingusdk", "@msvinth"],
   "dependencies": ["frontend", "lovelace", "ihc"],
   "domain": "ihcviewer",
-  "homeassistant": "0.103.0",
+  "homeassistant": "0.107.0",
   "name": "IHC Viewer",
   "requirements": []
 }
