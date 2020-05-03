@@ -27,7 +27,7 @@ async def async_setup(hass, config):
     controller_id = 0
     ihc_controller = hass.data[f"ihc{controller_id}"][IHC_CONTROLLER]
     hass.http.register_view(IHCLogView(hass, ihc_controller))
-    hass.http.register_view(IHCProjectView(ihc_controller))
+    hass.http.register_view(IHCProjectView(hass, ihc_controller))
     hass.http.register_view(IHCGetValue(hass, ihc_controller))
 
     register_frontend(hass)
@@ -136,14 +136,17 @@ class IHCProjectView(HomeAssistantView):
     url = "/api/ihc/project"
     name = "api:ihc:project"
 
-    def __init__(self, ihc_controller):
+    def __init__(self, hass, ihc_controller):
         """Initilalize the IHCProjectView."""
+        self.hass = hass
         self.ihc_controller = ihc_controller
 
     @ha.callback
-    def get(self, request):
+    async def get(self, request):
         """Retrieve IHC project."""
-        project = self.ihc_controller.get_project()
+        project = await self.hass.async_add_executor_job(
+            self.ihc_controller.get_project
+        )
         return web.Response(
             body=project, content_type="text/xml", charset="utf-8", status=200
         )
