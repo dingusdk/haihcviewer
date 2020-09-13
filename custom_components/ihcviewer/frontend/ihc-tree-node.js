@@ -1,6 +1,7 @@
-
 class IhcTreeNode extends Polymer.Element {
-    static get is() { return 'ihc-tree-node'; }
+    static get is() {
+        return "ihc-tree-node";
+    }
     static get properties() {
         return {
             data: {
@@ -12,13 +13,18 @@ class IhcTreeNode extends Polymer.Element {
             selected: {
                 type: Boolean,
             },
-        }
+        };
     }
     constructor() {
         super();
         this.expanded = false;
         this.selected = false;
     }
+
+    getThemeClasses() {
+        return "";
+    }
+
     getExpandClasses(expanded) {
         return expanded ? "expandicon expanded" : "expandicon";
     }
@@ -29,7 +35,13 @@ class IhcTreeNode extends Polymer.Element {
         return selected ? "selected" : "";
     }
     select(e) {
-        this.dispatchEvent(new CustomEvent('select', { bubbles: true, composed: true, detail: { node: this } }));
+        this.dispatchEvent(
+            new CustomEvent("select", {
+                bubbles: true,
+                composed: true,
+                detail: { node: this },
+            })
+        );
     }
 }
 customElements.define(IhcTreeNode.is, IhcTreeNode);

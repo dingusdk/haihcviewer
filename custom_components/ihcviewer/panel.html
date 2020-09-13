@@ -2,294 +2,128 @@
 
 <dom-module id="ha-panel-ihcviewer">
   <template>
-    <style include="ha-style ihc-tree-node">
-      .content {
-        margin-left: 0;
+    <style include="ihc-tree-node">
+      #ihcviewer {
+        width: 100%;
+        height: calc(100% - 10px);
       }
-      #ihcprojecttree {
-        display: inline-block;
-        padding-bottom: 100px;
+      #title {
+        background-color: var(--app-header-background-color);
+        color: var(--app-header-text-color);
+        font-size: x-large;
+        padding: 15px;
+        flex: 0;
+        height: 50px;
+      }
+      #content {
+        height: calc(100% - 50px);
+      }
+      .flex-contianer {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .topbox {
+        flex: 1;
+        overflow-y: auto;
+      }
+      #log {
+        padding: 10px;
       }
       #ihcproperties {
-        display: block;
-        position: fixed;
-        bottom: 0;
-        height: 100px;
-        background-color: white;
+        flex: 0;
         padding-top: 5px;
         padding-left: 20px;
-        width: 100%;
+        height: 100px;
         font-size: 14px;
-        border-top: solid 1px lightgray;
+        border-top: solid 1px gray;
+        background-color: var(--primary-background-color);
+        cursor: default;
+      }
+      #copyres {
+        cursor: pointer;
+      }
+      h2 {
+        font-size: large;
+        font-weight: normal;
+      }
+      /* spinner */
+      .loader {
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #3498db;
+        width: 50px;
+        height: 50px;
+        -webkit-animation: spin 2s linear infinite; /* Safari */
+        animation: spin 2s linear infinite;
+      }
+      /* Safari */
+      @-webkit-keyframes spin {
+        0% {
+          -webkit-transform: rotate(0deg);
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+        }
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
       }
     </style>
-    <app-header-layout has-scrolling-region>
-      <app-header slot="header" fixed>
-        <app-toolbar>
-          <ha-menu-button
-            narrow="[[narrow]]"
-            show-menu="[[showMenu]]"
-          ></ha-menu-button>
-          <div main-title>IHC Viewer</div>
-        </app-toolbar>
-        <paper-tabs selected="{{selectedtab}}" scrollable>
-          <paper-tab>Project</paper-tab>
-          <paper-tab>Log</paper-tab>
-        </paper-tabs>
-      </app-header>
-      <div class="content">
-        <iron-pages selected="{{selectedtab}}">
-          <div>
-            <div hidden$="[[!isProjectLoading]]">
-              <paper-spinner
-                active="[[isProjectLoading]]"
-                alt="Loading IHC project"
-              ></paper-spinner>
-            </div>
-            <div id="ihcprojecttree">
-              <ul>
-                <template
-                  is="dom-repeat"
-                  items="{{ihcproject.Groups}}"
-                  as="group"
-                >
-                  <ihc-tree-node data="{{group}}"></ihc-tree-node>
-                </template>
-              </ul>
-            </div>
-            <template is="dom-if" if="{{selected}}">
-              <div id="ihcproperties">
-                <div>
-                  <span>Resource id:</span><span> {{selected.data.Id}}</span>
-                </div>
-                <div><span>Type:</span><span> {{selectedtype}}</span></div>
-                <div><span>Value:</span><span> {{selectedvalue}}</span></div>
-              </div>
-            </template>
+    <div id="ihcviewer" class="flex-contianer">
+      <div id="title">IHC Viewer</div>
+      <div id="content" class="flex-contianer">
+        <div class="topbox">
+          <div hidden$="[[!isProjectLoading]]" class="loader"></div>
+          <div id="ihcprojecttree">
+            <ul>
+              <template
+                is="dom-repeat"
+                items="{{ihcproject.Groups}}"
+                as="group"
+              >
+                <ihc-tree-node data="{{group}}"></ihc-tree-node>
+              </template>
+            </ul>
           </div>
-          <div>
-            <span slot="introduction">
-              IHC controller log:
-            </span>
-            <div hidden$="[[!isLogLoading]]">
-              <paper-spinner
-                active="[[isLogLoading]]"
-                alt="Loading IHC project"
-              ></paper-spinner>
-            </div>
+          <div id="log">
+            <h2>IHC controller log:</h2>
+            <div hidden$="[[!isLogLoading]]" class="loader"></div>
             <pre id="ihc_log" hidden$="[[isLogLoading]]">{{log}}</pre>
           </div>
-        </iron-pages>
+        </div>
+        <div id="ihcproperties">
+          <template is="dom-if" if="{{selected}}">
+            <div>
+              <span>Resource id:</span>
+              <span id="resourceid"> {{selected.data.Id}}</span>
+              <span
+                id="copyres"
+                title="copy resource id to clipboard"
+                on-click="OnCopy"
+              >
+                <svg style="width: 16px; height: 16px" viewBox="0 0 24 24">
+                  <path
+                    fill="currentColor"
+                    d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"
+                  />
+                </svg>
+              </span>
+            </div>
+            <div><span>Type:</span><span> {{selectedtype}}</span></div>
+            <div><span>Value:</span><span> {{selectedvalue}}</span></div>
+          </template>
+        </div>
       </div>
-    </app-header-layout>
+    </div>
   </template>
 </dom-module>
 
 <script src="/ihcviewer/jquery-2.2.3.min.js" type="text/javascript"></script>
 <script src="/ihcviewer/ihcproject.js" type="text/javascript"></script>
-<script>
-  var instance = null;
-
-  class IhcResourceNode extends Polymer.Element {
-    static get is() {
-      return "ihc-resource";
-    }
-    static get properties() {
-      return {
-        data: {
-          type: Object
-        },
-        expanded: {
-          type: Boolean
-        },
-        iconclass: {
-          type: String
-        },
-        expandclass: {
-          type: String
-        }
-      };
-    }
-
-    select() {
-      instance.selectedresource = this.data;
-      instance.selectedtype = "";
-      instance.selectedvalue = "";
-      $.ajax({
-        type: "GET",
-        url: "/api/ihc/getvalue",
-        async: true,
-        data: { id: this.data.Id },
-        cache: false,
-        success: result => {
-          instance.selectedtype = result.type;
-          instance.selectedvalue = result.value;
-        }
-      });
-    }
-  }
-
-  class HaPanelIHCViewer extends Polymer.Element {
-    static get is() {
-      return "ha-panel-ihcviewer";
-    }
-
-    static get properties() {
-      return {
-        // Home Assistant object
-        hass: Object,
-        // If should render in narrow mode
-        narrow: {
-          type: Boolean,
-          value: false
-        },
-        // If sidebar is currently shown
-        showMenu: {
-          type: Boolean,
-          value: false
-        },
-        // Home Assistant panel info
-        // panel.config contains config passed to register_panel serverside
-        panel: Object,
-        log: {
-          type: String
-        },
-        isProjectLoading: {
-          type: Boolean
-        },
-        isLogLoading: {
-          type: Boolean
-        },
-        selectedtab: {
-          type: Number
-        },
-        ihcproject: {
-          type: Object
-        },
-        selected: {
-          type: Object,
-          value: null,
-          notify: true
-        },
-        selectedtype: {
-          type: String
-        },
-        selectedvalue: {
-          type: Object
-        }
-      };
-    }
-    constructor() {
-      super();
-      instance = this;
-      this.isProjectLoading = false;
-      this.isLogLoading = false;
-      this.log = "";
-      this.selectedtab = 0;
-      this.ihcproject = null;
-      this.selectedresource = null;
-    }
-
-    connectedCallback() {
-      super.connectedCallback();
-      this.isProjectLoading = true;
-      $.ajax({
-        type: "GET",
-        url: "/api/ihc/project",
-        headers: {
-          Authorization:
-            "Bearer " + this.hass.connection.options.auth.accessToken
-        },
-        async: true,
-        cache: false,
-        success: result => {
-          var project = new IHCProject(result);
-          for (let group of project.Groups) {
-            group.iconclass = "groupicon";
-            group.Children = [];
-            for (let product of group.Products) {
-              group.Children.push(product);
-              product.iconclass = "producticon";
-              product.Children = [];
-              for (let input of product.Inputs) {
-                product.Children.push(input);
-                input.iconclass = "inputicon";
-              }
-              for (let output of product.Outputs) {
-                product.Children.push(output);
-                output.iconclass = "outputicon";
-              }
-            }
-            for (let fn of group.FunctionBlocks) {
-              group.Children.push(fn);
-              fn.iconclass = "functionicon";
-              fn.Children = [];
-              for (let input of fn.Inputs) {
-                fn.Children.push(input);
-                input.iconclass = "inputicon";
-              }
-              for (let output of fn.Outputs) {
-                fn.Children.push(output);
-                output.iconclass = "outputicon";
-              }
-            }
-          }
-          this.ihcproject = project;
-          this.isProjectLoading = false;
-          this.isLogLoading = true;
-          $.ajax({
-            url: "/api/ihc/log",
-            headers: {
-              Authorization:
-                "Bearer " + this.hass.connection.options.auth.accessToken
-            },
-            async: true,
-            success: result => {
-              this.log = result;
-              this.isLogLoading = false;
-            }
-          });
-        }
-      });
-    }
-
-    ready() {
-      super.ready();
-      this.addEventListener("select", this._OnSelectNode);
-    }
-
-    _OnSelectNode(e) {
-      if (this.selected) {
-        this.selected.selected = false;
-        this.selected = null;
-      }
-      var node = e.detail.node;
-      if (!(node.data instanceof IHCResource)) {
-        this.selected = null;
-        return false;
-      }
-      this.selected = e.detail.node;
-      if (this.selected == null) return false;
-      this.selected.selected = true;
-      this.selectedtype = "";
-      this.selectedvalue = "";
-      $.ajax({
-        type: "GET",
-        url: "/api/ihc/getvalue",
-        headers: {
-          Authorization:
-            "Bearer " + this.hass.connection.options.auth.accessToken
-        },
-        async: true,
-        data: { id: this.selected.data.Id },
-        cache: false,
-        success: result => {
-          this.selectedtype = result.type;
-          this.selectedvalue = result.value;
-        }
-      });
-      return false;
-    }
-  }
-  customElements.define(HaPanelIHCViewer.is, HaPanelIHCViewer);
-</script>
+<script src="/ihcviewer/panel.js" type="text/javascript"></script>

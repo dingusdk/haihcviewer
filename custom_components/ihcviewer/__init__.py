@@ -26,9 +26,9 @@ async def async_setup(hass, config):
     conf = config[DOMAIN]
     controller_id = 0
     ihc_controller = hass.data[f"ihc{controller_id}"][IHC_CONTROLLER]
-    hass.http.register_view(IHCLogView(ihc_controller))
-    hass.http.register_view(IHCProjectView(ihc_controller))
-    hass.http.register_view(IHCGetValue(ihc_controller))
+    hass.http.register_view(IHCLogView(ihc_controller, hass))
+    hass.http.register_view(IHCProjectView(ihc_controller, hass))
+    hass.http.register_view(IHCGetValue(ihc_controller, hass))
 
     register_frontend(hass)
 
@@ -88,14 +88,15 @@ class IHCLogView(HomeAssistantView):
     url = "/api/ihc/log"
     name = "api:ihc:log"
 
-    def __init__(self, ihc_controller):
+    def __init__(self, ihc_controller, hass):
         """Initilalize the IHCLog view."""
         self.ihc_controller = ihc_controller
+        self.hass = hass
 
     @ha.callback
-    def get(self, request):
+    async def get(self, request):
         """Retrieve IHC log."""
-        log = self.get_user_log(language="en")
+        log  = await self.hass.async_add_executor_job( self.get_user_log)
         return self.json(log)
 
     ihcns = {
@@ -108,9 +109,9 @@ class IHCLogView(HomeAssistantView):
     def get_user_log(self, language="en"):
         """Get the controller state."""
         payload = """<getUserLog1 xmlns="utcs" />
-                     <getUserLog2 xmlns="utcs">0</getUserLog2>
-                     <getUserLog3 xmlns="utcs">{language}</getUserLog3>
-                     """.format(
+                    <getUserLog2 xmlns="utcs">0</getUserLog2>
+                    <getUserLog3 xmlns="utcs">{language}</getUserLog3>
+                    """.format(
             language=language
         )
         xdoc = self.ihc_controller.client.connection.soap_action(
@@ -135,14 +136,15 @@ class IHCProjectView(HomeAssistantView):
     url = "/api/ihc/project"
     name = "api:ihc:project"
 
-    def __init__(self, ihc_controller):
+    def __init__(self, ihc_controller, hass):
         """Initilalize the IHCProjectView."""
         self.ihc_controller = ihc_controller
+        self.hass = hass
 
     @ha.callback
-    def get(self, request):
+    async def get(self, request):
         """Retrieve IHC project."""
-        project = self.ihc_controller.get_project()
+        project = await self.hass.async_add_executor_job( self.ihc_controller.get_project)
         return web.Response(
             body=project, content_type="text/xml", charset="utf-8", status=200
         )
@@ -157,14 +159,15 @@ class IHCGetValue(HomeAssistantView):
     url = "/api/ihc/getvalue"
     name = "api:ihc:getvalue"
 
-    def __init__(self, ihc_controller):
+    def __init__(self, ihc_controller, hass):
         """Initilalize the IHCGetValue."""
         self.ihc_controller = ihc_controller
+        self.hass = hass
 
     @ha.callback
-    def get(self, request):
+    async def get(self, request):
         """Get runtime value from IHC controller."""
         data = request.query
         id = int(data.get("id"))
-        value = self.ihc_controller.client.get_runtime_value(id)
+        value = await self.hass.async_add_executor_job( self.ihc_controller.client.get_runtime_value,id)
         return self.json({"value": value, "type": type(value).__name__})

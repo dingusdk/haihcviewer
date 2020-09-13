@@ -5,8 +5,8 @@
   "context": "..",
   "appPort": ["5000:5000", "9123:8123"],
   "runArgs": [
-    "-v",
-    "${env:HOME}${env:USERPROFILE}/.ssh:/tmp/.ssh" // This is added so you can push from inside the container
+    // "-v",
+    // "${env:HOME}${env:USERPROFILE}/.ssh:/tmp/.ssh" // This is added so you can push from inside the container
   ],
   "extensions": [
     "ms-python.python",
