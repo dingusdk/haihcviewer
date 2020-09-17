@@ -11,6 +11,18 @@
       .treeicon svg {
         display: none;
       }
+      span.connection svg {
+        display: inline-block;
+        position: absolute;
+        left: -16px;
+        top: 0;
+      }
+      .connected span.connection {
+        display: block;
+        position: relative;
+        width: 0;
+        height: 0;
+      }
       .groupicon svg.groupicon {
         display: inline-block;
       }
@@ -104,6 +116,11 @@
             </span>
           </template>
           <span class$="treeicon {{data.iconclass}}">
+            <span class="connection">
+              <svg style="width: 16px; height: 16px" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M11 15H6L13 1V9H18L11 23V15Z" />
+              </svg>
+            </span>
             <svg
               class="groupicon"
               style="width: 16px; height: 16px"

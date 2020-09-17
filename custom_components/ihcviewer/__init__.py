@@ -20,6 +20,8 @@ DOMAIN = "ihcviewer"
 
 _LOGGER = logging.getLogger(__name__)
 
+ihcmapping = None
+
 
 async def async_setup(hass, config):
     """Setup the IHC viewer component."""
@@ -29,6 +31,7 @@ async def async_setup(hass, config):
     hass.http.register_view(IHCLogView(ihc_controller, hass))
     hass.http.register_view(IHCProjectView(ihc_controller, hass))
     hass.http.register_view(IHCGetValue(ihc_controller, hass))
+    hass.http.register_view(IHCMapping(hass))
 
     register_frontend(hass)
 
@@ -96,7 +99,7 @@ class IHCLogView(HomeAssistantView):
     @ha.callback
     async def get(self, request):
         """Retrieve IHC log."""
-        log  = await self.hass.async_add_executor_job( self.get_user_log)
+        log = await self.hass.async_add_executor_job(self.get_user_log)
         return self.json(log)
 
     ihcns = {
@@ -122,9 +125,9 @@ class IHCLogView(HomeAssistantView):
                 "./SOAP-ENV:Body/ns1:getUserLog4/ns1:data", IHCLogView.ihcns
             ).text
             if not base64data:
-                return False
+                return ""
             return base64.b64decode(base64data).decode("UTF-8")
-        return False
+        return ""
 
 
 class IHCProjectView(HomeAssistantView):
@@ -144,7 +147,9 @@ class IHCProjectView(HomeAssistantView):
     @ha.callback
     async def get(self, request):
         """Retrieve IHC project."""
-        project = await self.hass.async_add_executor_job( self.ihc_controller.get_project)
+        project = await self.hass.async_add_executor_job(
+            self.ihc_controller.get_project
+        )
         return web.Response(
             body=project, content_type="text/xml", charset="utf-8", status=200
         )
@@ -169,5 +174,35 @@ class IHCGetValue(HomeAssistantView):
         """Get runtime value from IHC controller."""
         data = request.query
         id = int(data.get("id"))
-        value = await self.hass.async_add_executor_job( self.ihc_controller.client.get_runtime_value,id)
-        return self.json({"value": value, "type": type(value).__name__})
+        value = await self.hass.async_add_executor_job(
+            self.ihc_controller.client.get_runtime_value, id
+        )
+        entity_id = ""
+        global ihcmapping
+        if id in ihcmapping:
+            entity_id = ihcmapping[id]
+        json = {"value": value, "type": type(value).__name__, "entity": entity_id}
+        return self.json(json)
+
+
+class IHCMapping(HomeAssistantView):
+    """Get mapping of ihc id's to entities."""
+
+    url = "/api/ihc/mapping"
+    name = "api:ihc:mapping"
+
+    def __init__(self, hass):
+        """Initilalize the IHCGetValue."""
+        self.hass = hass
+
+    @ha.callback
+    async def get(self, request):
+        """Get ihc mapping."""
+
+        allstates = await self.hass.async_add_executor_job(self.hass.states.all)
+        global ihcmapping
+        ihcmapping = {}
+        for state in allstates:
+            if "ihc_id" in state.attributes:
+                ihcmapping[state.attributes["ihc_id"]] = state.entity_id
+        return self.json(ihcmapping)

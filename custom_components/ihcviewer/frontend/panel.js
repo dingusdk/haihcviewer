@@ -34,6 +34,7 @@ class IhcResourceNode extends Polymer.Element {
       success: (result) => {
         instance.selectedtype = result.type;
         instance.selectedvalue = result.value;
+        instance.selectedentity = result.entity;
       },
     });
   }
@@ -89,6 +90,9 @@ class HaPanelIHCViewer extends Polymer.Element {
       selectedvalue: {
         type: Object,
       },
+      selectedentity: {
+        type: Object,
+      }
     };
   }
   constructor() {
@@ -100,11 +104,36 @@ class HaPanelIHCViewer extends Polymer.Element {
     this.selectedtab = 0;
     this.ihcproject = null;
     this.selectedresource = null;
+    this.ihcmapping = null;
   }
 
   connectedCallback() {
     super.connectedCallback();
+    this.ihcMappingRequest();
+  }
+
+  ihcMappingRequest() {
+
     this.isProjectLoading = true;
+    $.ajax({
+      type: "GET",
+      url: "/api/ihc/mapping",
+      headers: {
+        Authorization:
+          "Bearer " + this.hass.connection.options.auth.accessToken,
+      },
+      async: true,
+      cache: false,
+      success: (result) => {
+        this.ihcmapping = result;
+        this.projectRequest();
+      },
+    });
+  }
+
+
+  projectRequest() {
+
     $.ajax({
       type: "GET",
       url: "/api/ihc/project",
@@ -116,51 +145,67 @@ class HaPanelIHCViewer extends Polymer.Element {
       cache: false,
       success: (result) => {
         var project = new IHCProject(result);
-        for (let group of project.Groups) {
-          group.iconclass = "groupicon";
-          group.Children = [];
-          for (let product of group.Products) {
-            group.Children.push(product);
-            product.iconclass = "producticon";
-            product.Children = [];
-            for (let input of product.Inputs) {
-              product.Children.push(input);
-              input.iconclass = "inputicon";
-            }
-            for (let output of product.Outputs) {
-              product.Children.push(output);
-              output.iconclass = "outputicon";
-            }
-          }
-          for (let fn of group.FunctionBlocks) {
-            group.Children.push(fn);
-            fn.iconclass = "functionicon";
-            fn.Children = [];
-            for (let input of fn.Inputs) {
-              fn.Children.push(input);
-              input.iconclass = "inputicon";
-            }
-            for (let output of fn.Outputs) {
-              fn.Children.push(output);
-              output.iconclass = "outputicon";
-            }
-          }
-        }
-        this.ihcproject = project;
+        this.updateProject(project);
         this.isProjectLoading = false;
-        this.isLogLoading = true;
-        $.ajax({
-          url: "/api/ihc/log",
-          headers: {
-            Authorization:
-              "Bearer " + this.hass.connection.options.auth.accessToken,
-          },
-          async: true,
-          success: (result) => {
-            this.log = result;
-            this.isLogLoading = false;
-          },
-        });
+        this.logRequest();
+      },
+    });
+  }
+
+  updateProject(project) {
+    for (let group of project.Groups) {
+      group.iconclass = "groupicon";
+      group.Children = [];
+      for (let product of group.Products) {
+        group.Children.push(product);
+        product.iconclass = "producticon";
+        product.Children = [];
+        for (let input of product.Inputs) {
+          product.Children.push(input);
+          input.iconclass = "inputicon";
+          if (input.Id in this.ihcmapping)
+            input.iconclass += " connected";
+        }
+        for (let output of product.Outputs) {
+          product.Children.push(output);
+          output.iconclass = "outputicon";
+          if (output.Id in this.ihcmapping)
+            output.iconclass += " connected";
+        }
+      }
+      for (let fn of group.FunctionBlocks) {
+        group.Children.push(fn);
+        fn.iconclass = "functionicon";
+        fn.Children = [];
+        for (let input of fn.Inputs) {
+          fn.Children.push(input);
+          input.iconclass = "inputicon";
+          if (input.Id in this.ihcmapping)
+            input.iconclass += " connected";
+        }
+        for (let output of fn.Outputs) {
+          fn.Children.push(output);
+          output.iconclass = "outputicon";
+          if (output.Id in this.ihcmapping)
+            output.iconclass += " connected";
+        }
+      }
+    }
+    this.ihcproject = project;
+  }
+
+  logRequest() {
+    this.isLogLoading = true;
+    $.ajax({
+      url: "/api/ihc/log",
+      headers: {
+        Authorization:
+          "Bearer " + this.hass.connection.options.auth.accessToken,
+      },
+      async: true,
+      success: (result) => {
+        this.log = result;
+        this.isLogLoading = false;
       },
     });
   }
@@ -185,6 +230,7 @@ class HaPanelIHCViewer extends Polymer.Element {
     this.selected.selected = true;
     this.selectedtype = "";
     this.selectedvalue = "";
+    this.selectedentity = "";
     $.ajax({
       type: "GET",
       url: "/api/ihc/getvalue",
@@ -198,6 +244,7 @@ class HaPanelIHCViewer extends Polymer.Element {
       success: (result) => {
         this.selectedtype = result.type;
         this.selectedvalue = result.value;
+        this.selectedentity = result.entity;
       },
     });
     return false;
