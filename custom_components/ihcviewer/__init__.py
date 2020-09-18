@@ -46,7 +46,7 @@ async def async_setup(hass, config):
         "name": "ihcviewer",
         "embed_iframe": False,
         "trust_external": False,
-        "html_url": html_url,
+        "html_url": html_url + "?ver=1.1.2",
     }
 
     if conf is not None:
