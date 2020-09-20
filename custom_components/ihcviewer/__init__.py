@@ -35,28 +35,19 @@ async def async_setup(hass, config):
 
     register_frontend(hass)
 
-    name = "panel"
-    filename = "panel.html"
-
-    panelpath = os.path.join(os.path.dirname(__file__), filename)
-    html_url = "/api/ihcviewer/{}".format(name)
-    hass.http.register_static_path(html_url, panelpath)
-
+    # Add to sidepanel
     custom_panel_config = {
-        "name": "ihcviewer",
+        "name": "ha-panel-ihcviewer",
         "embed_iframe": False,
         "trust_external": False,
-        "html_url": html_url + "?ver=1.1.2",
+        "module_url": "/ihcviewer/panel.js",
     }
-
     if conf is not None:
         # Make copy because we're mutating it
         conf = dict(conf)
     else:
         conf = {}
-
     conf["_panel_custom"] = custom_panel_config
-
     hass.components.frontend.async_register_built_in_panel(
         component_name="custom",
         frontend_url_path="ihc-viewer",
@@ -65,7 +56,6 @@ async def async_setup(hass, config):
         config=conf,
         require_admin=True,
     )
-
     return True
 
 
