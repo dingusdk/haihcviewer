@@ -20,6 +20,7 @@ DOMAIN = "ihcviewer"
 
 _LOGGER = logging.getLogger(__name__)
 
+# We hold a global cached list of the mapping
 ihcmapping = None
 
 
@@ -34,8 +35,13 @@ async def async_setup(hass, config):
     hass.http.register_view(IHCMapping(hass))
 
     register_frontend(hass)
+    add_side_panel(hass, conf)
+    return True
 
-    # Add to sidepanel
+
+def add_side_panel(hass, conf):
+    """Add the IHCViewer sidepanel"""
+
     custom_panel_config = {
         "name": "ha-panel-ihcviewer",
         "embed_iframe": False,
@@ -56,7 +62,7 @@ async def async_setup(hass, config):
         config=conf,
         require_admin=True,
     )
-    return True
+    return
 
 
 def register_frontend(hass):
@@ -67,8 +73,7 @@ def register_frontend(hass):
         ext = os.path.splitext(filename)[1].lower()
         if ext == ".png" or ext == ".html" or ext == ".js":
             hass.http.register_static_path(
-                url_path="/ihcviewer/{}".format(filename),
-                path=os.path.join(path, filename),
+                "/ihcviewer/{}".format(filename), os.path.join(path, filename), False
             )
 
 
@@ -169,7 +174,7 @@ class IHCGetValue(HomeAssistantView):
         )
         entity_id = ""
         global ihcmapping
-        if id in ihcmapping:
+        if ihcmapping is not None and id in ihcmapping:
             entity_id = ihcmapping[id]
         json = {"value": value, "type": type(value).__name__, "entity": entity_id}
         return self.json(json)
