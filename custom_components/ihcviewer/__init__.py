@@ -13,10 +13,10 @@ import homeassistant.core as ha
 from homeassistant.components.ihc import IHC_CONTROLLER
 from homeassistant.components.http import HomeAssistantView
 
-REQUIREMENTS = ["ihcsdk==2.6.0"]
-DEPENDENCIES = ["ihc"]
+from custom_components.ihcviewer.const import DOMAIN, NAME_SHORT, VERSION
 
-DOMAIN = "ihcviewer"
+REQUIREMENTS = ["ihcsdk==2.7.0"]
+DEPENDENCIES = ["ihc"]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ def add_side_panel(hass, conf):
         "name": "ha-panel-ihcviewer",
         "embed_iframe": False,
         "trust_external": False,
-        "module_url": "/ihcviewer/panel.js",
+        "module_url": f"/ihcviewer/frontend-{VERSION}/panel.js",
     }
     if conf is not None:
         # Make copy because we're mutating it
@@ -54,10 +54,11 @@ def add_side_panel(hass, conf):
     else:
         conf = {}
     conf["_panel_custom"] = custom_panel_config
+    conf["version"] = VERSION
     hass.components.frontend.async_register_built_in_panel(
         component_name="custom",
-        frontend_url_path="ihc-viewer",
-        sidebar_title="IHC Viewer",
+        frontend_url_path="ihc_viewer",
+        sidebar_title=NAME_SHORT,
         sidebar_icon="mdi:file-tree",
         config=conf,
         require_admin=True,
@@ -73,7 +74,8 @@ def register_frontend(hass):
         ext = os.path.splitext(filename)[1].lower()
         if ext == ".png" or ext == ".html" or ext == ".js":
             hass.http.register_static_path(
-                "/ihcviewer/{}".format(filename), os.path.join(path, filename), False
+                f"/ihcviewer/frontend-{VERSION}/{filename}",
+                os.path.join(path, filename),
             )
 
 
@@ -83,8 +85,8 @@ class IHCLogView(HomeAssistantView):
     from ihcsdk.ihccontroller import IHCController
     from ihcsdk.ihcclient import IHCSoapClient
 
-    url = "/api/ihc/log"
-    name = "api:ihc:log"
+    url = "/api/ihcviewer/log"
+    name = "api:ihcviewer:log"
 
     def __init__(self, ihc_controller, hass):
         """Initilalize the IHCLog view."""
@@ -131,8 +133,8 @@ class IHCProjectView(HomeAssistantView):
     from ihcsdk.ihccontroller import IHCController
     from ihcsdk.ihcclient import IHCSoapClient
 
-    url = "/api/ihc/project"
-    name = "api:ihc:project"
+    url = "/api/ihcviewer/project"
+    name = "api:ihcviewer:project"
 
     def __init__(self, ihc_controller, hass):
         """Initilalize the IHCProjectView."""
@@ -156,8 +158,8 @@ class IHCGetValue(HomeAssistantView):
     from ihcsdk.ihccontroller import IHCController
     from ihcsdk.ihcclient import IHCSoapClient
 
-    url = "/api/ihc/getvalue"
-    name = "api:ihc:getvalue"
+    url = "/api/ihcviewer/getvalue"
+    name = "api:ihcviewer:getvalue"
 
     def __init__(self, ihc_controller, hass):
         """Initilalize the IHCGetValue."""
@@ -183,8 +185,8 @@ class IHCGetValue(HomeAssistantView):
 class IHCMapping(HomeAssistantView):
     """Get mapping of ihc id's to entities."""
 
-    url = "/api/ihc/mapping"
-    name = "api:ihc:mapping"
+    url = "/api/ihcviewer/mapping"
+    name = "api:ihcviewer:mapping"
 
     def __init__(self, hass):
         """Initilalize the IHCGetValue."""

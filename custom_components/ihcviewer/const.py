@@ -1,0 +1,5 @@
+NAME_SHORT = "IHCViewer"
+DOMAIN = "ihcviewer"
+VERSION = "1.2.0"
+PROJECT_URL = "https://github.com/dingusdk/haihcviewer/"
+ISSUE_URL = f"{PROJECT_URL}issues"

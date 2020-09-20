@@ -1,5 +1,6 @@
 import "./jquery-2.2.3.min.js"
 import "./ihc-tree-node.js"
+
 import {
   LitElement,
   html,
@@ -55,7 +56,7 @@ class HaPanelIHCViewer extends LitElement {
       },
       selectedentity: {
         type: Object,
-      }
+      },
     };
   }
 
@@ -112,17 +113,7 @@ class HaPanelIHCViewer extends LitElement {
         border-top: 16px solid #3498db;
         width: 50px;
         height: 50px;
-        -webkit-animation: spin 2s linear infinite; /* Safari */
         animation: spin 2s linear infinite;
-      }
-      /* Safari */
-      @-webkit-keyframes spin {
-        0% {
-          -webkit-transform: rotate(0deg);
-        }
-        100% {
-          -webkit-transform: rotate(360deg);
-        }
       }
       @keyframes spin {
         0% {
@@ -152,7 +143,7 @@ class HaPanelIHCViewer extends LitElement {
           <div id="log">
             <h2>IHC controller log:</h2>
             ${this.isLogLoading ? html`<div class='loader'></div>` : ''}
-            <pre id="ihc_log" hidden$="[[isLogLoading]]">${this.log}</pre>
+            <pre id="ihc_log">${this.log}</pre>
           </div>
         </div>
         <div id="ihcproperties">
@@ -193,12 +184,14 @@ class HaPanelIHCViewer extends LitElement {
     this.ihcproject = null;
     this.selectedresource = null;
     this.ihcmapping = null;
-    $.getScript("/ihcviewer/ihcproject.js");
   }
 
   connectedCallback() {
     super.connectedCallback();
     this.addEventListener("select", this._OnSelectNode);
+    var version = this.hass.panels.ihc_viewer.config.version
+    $.getScript(`/ihcviewer/frontend-${version}/ihcproject.js`);
+
     this.ihcMappingRequest();
   }
 
@@ -207,7 +200,7 @@ class HaPanelIHCViewer extends LitElement {
     this.isProjectLoading = true;
     $.ajax({
       type: "GET",
-      url: "/api/ihc/mapping",
+      url: "/api/ihcviewer/mapping",
       headers: {
         Authorization:
           "Bearer " + this.hass.connection.options.auth.accessToken,
@@ -226,7 +219,7 @@ class HaPanelIHCViewer extends LitElement {
 
     $.ajax({
       type: "GET",
-      url: "/api/ihc/project",
+      url: "/api/ihcviewer/project",
       headers: {
         Authorization:
           "Bearer " + this.hass.connection.options.auth.accessToken,
@@ -287,7 +280,7 @@ class HaPanelIHCViewer extends LitElement {
   logRequest() {
     this.isLogLoading = true;
     $.ajax({
-      url: "/api/ihc/log",
+      url: "/api/ihcviewer/log",
       headers: {
         Authorization:
           "Bearer " + this.hass.connection.options.auth.accessToken,
@@ -322,7 +315,7 @@ class HaPanelIHCViewer extends LitElement {
     this.selectedentity = "";
     $.ajax({
       type: "GET",
-      url: "/api/ihc/getvalue",
+      url: "/api/ihcviewer/getvalue",
       headers: {
         Authorization:
           "Bearer " + this.hass.connection.options.auth.accessToken,
