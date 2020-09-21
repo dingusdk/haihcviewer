@@ -33,6 +33,7 @@ async def async_setup(hass, config):
     hass.http.register_view(IHCProjectView(ihc_controller, hass))
     hass.http.register_view(IHCGetValue(ihc_controller, hass))
     hass.http.register_view(IHCMapping(hass))
+    hass.http.register_view(NpmView(hass))
 
     register_frontend(hass)
     add_side_panel(hass, conf)
@@ -203,3 +204,35 @@ class IHCMapping(HomeAssistantView):
             if "ihc_id" in state.attributes:
                 ihcmapping[state.attributes["ihc_id"]] = state.entity_id
         return self.json(ihcmapping)
+
+
+class NpmView(HomeAssistantView):
+    """npm modules"""
+
+    requires_auth = False
+    name = "ihcviewer_npm"
+    url = r"/ihcviewer_npm/{requested_file:.+}"
+
+    def __init__(self, hass):
+        """Initilalize the IHCGetValue."""
+        self.hass = hass
+
+    @ha.callback
+    async def get(self, request, requested_file):  # pylint: disable=unused-argument
+        """Handle module Web requests."""
+        response = await self.hass.async_add_executor_job(
+            get_file_response, requested_file
+        )
+        return response
+
+
+def get_file_response(requested_file):
+    """Get file."""
+
+    dir = os.path.dirname(__file__)
+    servefile = f"{dir}/node_modules/{requested_file}"
+    if os.path.exists(servefile):
+        response = web.FileResponse(servefile)
+        return response
+
+    return web.Response(status=404)

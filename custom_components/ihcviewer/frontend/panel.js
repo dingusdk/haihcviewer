@@ -5,7 +5,7 @@ import {
   LitElement,
   html,
   css,
-} from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
+} from "/ihcviewer_npm/lit-element/lit-element.js";
 
 var instance = null;
 
