@@ -148,25 +148,19 @@ class HaPanelIHCViewer extends LitElement {
         </div>
         <div id="ihcproperties">
           ${this.selected ? html`
-            <div>
-                <span>Resource id:</span>
-                <span id="resourceid"> ${this.selected.data.Id}</span>
-                <span
-                  id="copyres"
-                  title="copy resource id to clipboard"
-                  @click=${this.OnCopy}
-                >
-                  <svg style="width: 16px; height: 16px" viewBox="0 0 24 24">
-                    <path
-                      fill="currentColor"
-                      d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"
-                    />
-                  </svg>
-                </span>
-              </div>
-              <div><span>Type:</span><span> ${this.selectedtype}</span></div>
-              <div><span>Value:</span><span> ${this.selectedvalue}</span></div>
-              <div><span>Entity:</span><span> ${this.selectedentity}</span></div>
+          <div>
+            <span>Resource id:</span>
+            <span id="resourceid"> ${this.selected.data.Id}</span>
+            <span id="copyres" title="copy resource id to clipboard" @click=${this.OnCopy}>
+              <svg style="width: 16px; height: 16px" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                  d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" />
+              </svg>
+            </span>
+          </div>
+          <div><span>Type:</span><span> ${this.selectedtype}</span></div>
+          <div><span>Value:</span><span> ${this.selectedvalue}</span></div>
+          <div><span>Entity:</span><span> ${this.selectedentity}</span></div>
           ` : ''}
         </div>
       </div>
