@@ -1,0 +1,33 @@
+{
+  "name": "haihcviewer",
+  "version": "1.2.3",
+  "description": "",
+  "main": "panel.js",
+  "scripts": {
+    "build": "webpack --config ./webpack.config.js --mode development",
+    "buildprod": "webpack --config ./webpack.config.js --mode production",
+    "test-compile": "tsc -p ./"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dingusdk/haihcviewer.git"
+  },
+  "author": "",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/dingusdk/haihcviewer/issues"
+  },
+  "homepage": "https://github.com/dingusdk/haihcviewer#readme",
+  "devDependencies": {
+    "@types/jquery": "^3.5.1",
+    "html-webpack-plugin": "^4.5.0",
+    "ts-loader": "^8.0.4",
+    "typescript": "^4.0.3",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "jquery": "^3.5.1",
+    "lit-element": "^2.4.0"
+  }
+}
