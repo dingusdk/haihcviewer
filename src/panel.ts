@@ -1,4 +1,3 @@
-import * as $ from "jquery";
 import { LitElement, html, css, customElement, property } from "lit-element";
 
 import { IHCProject } from "./ihcproject";
@@ -274,7 +273,7 @@ export class HaPanelIHCViewer extends LitElement {
     this.ihcproject = project;
   }
 
-  _OnSelectNode(e) {
+  async _OnSelectNode(e) {
     if (this.selected) {
       this.selected.selected = false;
       this.selected = null;
@@ -293,22 +292,16 @@ export class HaPanelIHCViewer extends LitElement {
     this.selectedtype = "";
     this.selectedvalue = "";
     this.selectedentity = "";
-    $.ajax({
-      type: "GET",
-      url: "/api/ihcviewer/getvalue",
-      headers: {
-        Authorization:
-          "Bearer " + this.hass.connection.options.auth.accessToken,
-      },
-      async: true,
-      data: { id: this.selected.data.Id },
-      cache: false,
-      success: (result) => {
-        this.selectedtype = result.type;
-        this.selectedvalue = result.value;
-        this.selectedentity = result.entity;
-      },
-    });
+    let response = await fetch(
+      "/api/ihcviewer/getvalue?id=" + this.selected.data.Id,
+      this.headers
+    );
+    if (response.ok) {
+      let result = await response.json();
+      this.selectedtype = result.type;
+      this.selectedvalue = result.value;
+      this.selectedentity = result.entity;
+    }
     return false;
   }
 
