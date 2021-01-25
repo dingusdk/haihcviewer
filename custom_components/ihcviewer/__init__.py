@@ -28,7 +28,12 @@ async def async_setup(hass, config):
     """Setup the IHC viewer component."""
     conf = config[DOMAIN]
     controller_id = 0
-    ihc_controller = hass.data[f"ihc{controller_id}"][IHC_CONTROLLER]
+    if "ihc" in hass.data:
+        # We use the first controller
+        controllerid1 = next(iter(hass.data["ihc"]))
+        ihc_controller = hass.data["ihc"][controllerid1][IHC_CONTROLLER]
+    else:
+        ihc_controller = hass.data[f"ihc{controller_id}"][IHC_CONTROLLER]
     hass.http.register_view(IhcViewerApiView(ihc_controller, hass))
 
     register_frontend(hass)
