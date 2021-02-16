@@ -6,6 +6,10 @@
     "typeRoots": ["./node_modules/@types", "./@types"],
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node"
-  }
+    "moduleResolution": "node",
+  },
+  "exclude": [
+      "node_modules",
+      "homeassistant-frontend"
+  ]
 }

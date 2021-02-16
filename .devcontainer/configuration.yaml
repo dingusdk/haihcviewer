@@ -20,9 +20,9 @@ logger:
 #   - url: !secret ihc_url
 #     username: !secret ihc_username
 #     password: !secret ihc_password
-#     auto_setup: false
+#     auto_setup: true
 
-ihcviewer:
+# ihcviewer:
 
 debugpy:
   wait: true

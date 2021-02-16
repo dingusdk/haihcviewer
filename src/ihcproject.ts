@@ -1,11 +1,13 @@
 export class IHCBase {
   Name: string;
   Id: number;
+  NodeTagName: string;
 
   constructor(node: Element) {
     this.Name = node.attributes["name"].value;
     var id: string = node.attributes["id"].value;
     this.Id = parseInt(id.substring(3), 16);
+    this.NodeTagName = node.tagName;
   }
 
   protected FindAndAdd(
@@ -165,6 +167,10 @@ export class IHCFunctionBlock extends IHCBase {
 export class IHCResource extends IHCBase {
   constructor(node: Element) {
     super(node);
+  }
+
+  get IsLightLevel() : boolean {
+    return this.NodeTagName == "resource_light_level" || this.NodeTagName == "link_dimming";
   }
 }
 

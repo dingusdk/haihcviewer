@@ -4,44 +4,79 @@ IHC Viever component.
 see http://www.dingus.dk for more information
 """
 import logging
-import asyncio
-import base64
 import os.path
-from aiohttp import web
 
-import homeassistant.core as ha
-from homeassistant.components.ihc import IHC_CONTROLLER
-from homeassistant.components.http import HomeAssistantView
+from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
 
-from custom_components.ihcviewer.const import DOMAIN, NAME_SHORT, VERSION
+from .const import DOMAIN, NAME_SHORT, URL_PANEL, VERSION
 
-REQUIREMENTS = ["ihcsdk==2.7.0"]
+from .api.getresource import ApiGetResource
+from .api.log import ApiLog
+from .api.manual_binarysensor import ApiManualBinarySensor
+from .api.manual_light import ApiManualLight
+from .api.manual_remove import ApiManualRemove
+from .api.manual_sensor import ApiManualSensor
+from .api.manual_switch import ApiManualSwitch
+from .api.mapping import ApiMapping
+from .api.project import ApiProject
+from .api.setboolresource import ApiSetBoolResource
+from .api.systeminfo import ApiSystemInfo
+
+
 DEPENDENCIES = ["ihc"]
 
 _LOGGER = logging.getLogger(__name__)
 
-# We hold a global cached list of the mapping
-ihcmapping = None
+MANUAL_SETUP_YAML = "ihc_manual_setup.yaml"
 
 
-async def async_setup(hass, config):
+async def async_setup(hass: HomeAssistant, config):
     """Setup the IHC viewer component."""
-    conf = config[DOMAIN]
-    controller_id = 0
-    if "ihc" in hass.data:
-        # We use the first controller
-        controllerid1 = next(iter(hass.data["ihc"]))
-        ihc_controller = hass.data["ihc"][controllerid1][IHC_CONTROLLER]
-    else:
-        ihc_controller = hass.data[f"ihc{controller_id}"][IHC_CONTROLLER]
-    hass.http.register_view(IhcViewerApiView(ihc_controller, hass))
+
+    if DOMAIN in config and config is not None:
+        _LOGGER.error("Setup using configuration is not supported anymore")
+        return False
 
     register_frontend(hass)
-    add_side_panel(hass, conf)
+    hass.http.register_view(ApiGetResource(hass))
+    hass.http.register_view(ApiLog(hass))
+    hass.http.register_view(ApiManualBinarySensor(hass))
+    hass.http.register_view(ApiManualLight(hass))
+    hass.http.register_view(ApiManualRemove(hass))
+    hass.http.register_view(ApiManualSensor(hass))
+    hass.http.register_view(ApiManualSwitch(hass))
+    hass.http.register_view(ApiMapping(hass))
+    hass.http.register_view(ApiProject(hass))
+    hass.http.register_view(ApiSetBoolResource(hass))
+    hass.http.register_view(ApiSystemInfo(hass))
     return True
 
 
-def add_side_panel(hass, conf):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Set up the IHC Viewer from a config entry."""
+
+    if "ihc" not in hass.data:
+        if "ihc0" in hass.data:
+            _LOGGER.error(
+                "IHCViewer 2.x does not support the old IHC integration. You must update your IHC integration"
+            )
+        else:
+            _LOGGER.error("IHC integration is not loaded")
+        return False
+    hass.data.setdefault(DOMAIN, {})
+    hass.data[DOMAIN] = list(dict(hass.data["ihc"]).keys())
+    add_side_panel(hass)
+    return True
+
+
+async def async_unload_entry(hass, entry):
+    """Unload a config entry."""
+    hass.components.frontend.async_remove_panel(hass, URL_PANEL)
+    return await hass.data[DOMAIN].async_unload_entry(entry)
+
+
+def add_side_panel(hass):
     """Add the IHCViewer sidepanel"""
 
     custom_panel_config = {
@@ -50,19 +85,16 @@ def add_side_panel(hass, conf):
         "trust_external": False,
         "module_url": f"/ihcviewer/frontend-{VERSION}/panel.js",
     }
-    if conf is not None:
-        # Make copy because we're mutating it
-        conf = dict(conf)
-    else:
-        conf = {}
-    conf["_panel_custom"] = custom_panel_config
-    conf["version"] = VERSION
+    panelconf = {}
+    panelconf["_panel_custom"] = custom_panel_config
+    panelconf["version"] = VERSION
+    panelconf[DOMAIN] = hass.data[DOMAIN]
     hass.components.frontend.async_register_built_in_panel(
         component_name="custom",
-        frontend_url_path="ihc_viewer",
+        frontend_url_path=URL_PANEL,
         sidebar_title=NAME_SHORT,
         sidebar_icon="mdi:file-tree",
-        config=conf,
+        config=panelconf,
         require_admin=True,
     )
     return
@@ -79,90 +111,3 @@ def register_frontend(hass):
                 f"/ihcviewer/frontend-{VERSION}/{filename}",
                 os.path.join(path, filename),
             )
-
-
-class IhcViewerApiView(HomeAssistantView):
-    """IHCViewer api requests."""
-
-    requires_auth = False
-    name = "api:ihcviewer"
-    url = r"/api/ihcviewer/{requested_file:.+}"
-
-    def __init__(self, ihc_controller, hass):
-        """Initilalize the IHCGetValue."""
-        self.hass = hass
-        self.ihc_controller = ihc_controller
-
-    @ha.callback
-    async def get(self, request, requested_file):  # pylint: disable=unused-argument
-        """Handle api  Web requests."""
-
-        if requested_file == "log":
-            log = await self.hass.async_add_executor_job(self.get_user_log)
-            return web.Response(
-                body=log, content_type="text/plain", charset="utf-8", status=200
-            )
-
-        if requested_file == "project":
-            project = await self.hass.async_add_executor_job(
-                self.ihc_controller.get_project
-            )
-            return web.Response(
-                body=project, content_type="text/xml", charset="utf-8", status=200
-            )
-
-        if requested_file == "getvalue":
-            data = request.query
-            id = int(data.get("id"))
-            return await self.get_value(id)
-
-        if requested_file == "mapping":
-            return await self.get_mapping()
-
-        return web.Response(status=404)
-
-    async def get_value(self, id):
-        value = await self.hass.async_add_executor_job(
-            self.ihc_controller.client.get_runtime_value, id
-        )
-        entity_id = ""
-        global ihcmapping
-        if ihcmapping is not None and id in ihcmapping:
-            entity_id = ihcmapping[id]
-        json = {"value": value, "type": type(value).__name__, "entity": entity_id}
-        return self.json(json)
-
-    async def get_mapping(self):
-        global ihcmapping
-        ihcmapping = {}
-        allstates = await self.hass.async_add_executor_job(self.hass.states.all)
-        for state in allstates:
-            if "ihc_id" in state.attributes:
-                ihcmapping[state.attributes["ihc_id"]] = state.entity_id
-        return self.json(ihcmapping)
-
-    ihcns = {
-        "SOAP-ENV": "http://schemas.xmlsoap.org/soap/envelope/",
-        "ns1": "utcs",
-        "ns2": "utcs.values",
-        "ns3": "utcs.values",
-    }
-
-    def get_user_log(self, language="en"):
-        payload = """<getUserLog1 xmlns="utcs" />
-                    <getUserLog2 xmlns="utcs">0</getUserLog2>
-                    <getUserLog3 xmlns="utcs">{language}</getUserLog3>
-                    """.format(
-            language=language
-        )
-        xdoc = self.ihc_controller.client.connection.soap_action(
-            "/ws/ConfigurationService", "getUserLog", payload
-        )
-        if xdoc is not None:
-            base64data = xdoc.find(
-                "./SOAP-ENV:Body/ns1:getUserLog4/ns1:data", IhcViewerApiView.ihcns
-            ).text
-            if not base64data:
-                return ""
-            return base64.b64decode(base64data).decode("UTF-8")
-        return ""

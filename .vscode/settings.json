@@ -1,6 +1,9 @@
 {
+  "python.linting.pylintEnabled": true,
+  "python.linting.enabled": true,
+  "python.pythonPath": "/usr/bin/python",
   "python.formatting.provider": "black",
   "files.associations": {
-    "*.yaml": "home-assistant"
-  }
+      "*.yaml": "home-assistant"
+  },
 }

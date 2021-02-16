@@ -1,15 +1,23 @@
 import { LitElement, html, css, customElement, property } from "lit-element";
 
+export enum Selection {
+  NotSelected,
+  Selected,
+  OnIdSelected,
+  OffIdSelected,
+};
+
 @customElement("ihc-tree-node")
 export class IhcTreeNode extends LitElement {
-  @property({ type: Object, reflect: true })
+
+  @property({ type: Object })
   public data = null;
 
-  @property({ type: Boolean, reflect: true })
+  @property({ type: Boolean })
   public expanded = false;
 
-  @property({ type: Boolean, reflect: true })
-  public selected = false;
+  @property({ type: Number })
+  public selected : Selection = Selection.NotSelected;
 
   static get styles() {
     return css`
@@ -57,26 +65,35 @@ export class IhcTreeNode extends LitElement {
         cursor: pointer;
         vertical-align: middle;
       }
-      .expandicon .minus {
-        display: none;
-      }
-      .expandicon.expanded .plus {
-        display: none;
-      }
-      .expandicon.expanded .minus {
-        display: inline-block;
-      }
       .treenode.selected {
-        background-color: var(--sidebar-selected-text-color);
+        background-color: var(--primary-color);
+      }
+      .treetext.onselected::after {
+        content: "on_id";
+        font-size: 12px;
+        font-weight: bold;
+        vertical-align: super;
+        padding: 0px 5px 0px 5px
+      }
+      .treetext.offselected::after {
+        content: "off_id";
+        font-size: 12px;
+        font-weight: bold;
+        vertical-align: super;
+        padding: 0px 5px 0px 5px
       }
       .treetext {
         cursor: default;
-        font-size: 18px;
+        font-size: 16px;
         vertical-align: middle;
       }
       .treeinfo {
         font-size: 0.8em;
         cursor: default;
+      }
+      div.treenode {
+        width: fit-content;
+        user-select: none;
       }
       div.treenode ul {
         margin-top: 0;
@@ -85,59 +102,11 @@ export class IhcTreeNode extends LitElement {
   }
 
   render() {
-    var children = [];
-    if (this.data.Children) {
-      children = this.data.Children.map(
-        (child) => html`
-          <ihc-tree-node data="${JSON.stringify(child)}"></ihc-tree-node>
-        `
-      );
-    }
     return html`
-      <div id="treenode" class="treenode ${this.getSelectedClasses(
-        this.selected
-      )} ${this.getThemeClasses()}">
+      <div id="treenode" class="treenode ${this.getNodeClasses()}">
         <span style="display: flex; flex-direction: row">
           <span>
-            ${
-              this.data.Children
-                ? html`
-                    <span
-                      class="${this.getExpandClasses(this.expanded)}"
-                      @click=${this.toggleExpand}
-                    >
-                      <svg
-                        class="plus"
-                        xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink"
-                        version="1.1"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M13,7H11V11H7V13H11V17H13V13H17V11H13V7Z"
-                        />
-                      </svg>
-                      <svg
-                        class="minus"
-                        xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink"
-                        version="1.1"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7,13H17V11H7"
-                        />
-                      </svg>
-                    </span>
-                  `
-                : ""
-            }
+            ${ this.render_expandicon() }
             <span class="treeicon ${this.data.iconclass}">
               <span class="connection">
                 <svg style="width: 16px; height: 16px" viewBox="0 0 24 24">
@@ -165,64 +134,111 @@ export class IhcTreeNode extends LitElement {
             </span>
           </span>
           <span style="display: flex; flex-direction: column">
-            <span class="treetext" @click=${this.select}>${
-      this.data.Name
-    }</span>
+            <span class="treetext ${this.getTextClasses()}" @click=${this.select}>${this.data.Name}</span>
             ${
               this.data.Note
                 ? html` <span class="treeinfo">Note: ${this.data.Note}</span> `
                 : ""
             }
-            ${
-              this.data.Position
-                ? html`
-                    <span class="treeinfo"
-                      >Position: ${this.data.Position}</span
-                    >
-                  `
-                : ""
+            ${ this.data.Position ?
+                  html`<span class="treeinfo">Position: ${this.data.Position}</span>` : ""
             }
           </span>
         </span>
-        ${
-          this.expanded
-            ? html`
-                <ul>
-                  ${children}
-                </ul>
-              `
-            : ""
-        }
+        ${ this.render_children() }
       </div>
       </template>
     `;
   }
 
+  render_expandicon() {
+
+    if (!this.data.Children) return "";
+    let icon = this.expanded ? html`
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+        version="1.1" width="16" height="16" viewBox="0 0 24 24">
+        <path fill="currentColor"
+          d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7,13H17V11H7"
+        />
+      </svg>` :
+      html`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+      version="1.1" width="16" height="16" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M13,7H11V11H7V13H11V17H13V13H17V11H13V7Z"
+      />
+      </svg>`;
+
+    return html`<span class="${this.getExpandClasses(this.expanded)}" @click=${this.toggleExpand}>
+      ${icon}
+    </span>`;
+  }
+
+  render_children() {
+
+    if (!this.expanded) return "";
+    var children = [];
+    if (this.data.Children) {
+      children = this.data.Children.map(
+        (child) => html`<ihc-tree-node id="treenode_${child.Id}"></ihc-tree-node>`
+      );
+    }
+    return html` <ul>${children}</ul>`;
+  }
+
   constructor() {
     super();
     this.expanded = false;
-    this.selected = false;
+    this.selected = Selection.NotSelected;
   }
 
-  getThemeClasses() {
-    return "";
+  async firstUpdated(changedProps) {
+    super.firstUpdated(changedProps);
+  }
+
+  async updated(changedProps) {
+    super.updated(changedProps);
+
+    if (this.data.Children) {
+      this.data.Children.map((child) => {
+        var treenode = this.shadowRoot.getElementById(`treenode_${child.Id}`) as IhcTreeNode;
+        if (treenode) {
+          treenode.data = child;
+        }
+      });
+    }
   }
 
   getExpandClasses(expanded) {
     return expanded ? "expandicon expanded" : "expandicon";
   }
+
   toggleExpand() {
     this.expanded = !this.expanded;
   }
-  getSelectedClasses(selected) {
-    return selected ? "selected" : "";
+
+  getNodeClasses() {
+    let cls = "";
+    if (this.selected >= Selection.Selected) cls = "selected";
+    return cls;
   }
-  select(e) {
+
+  getTextClasses() {
+
+    let cls = "";
+    if ( this.selected == Selection.OnIdSelected) cls += " onselected";
+    if ( this.selected == Selection.OffIdSelected) cls += " offselected";
+    return cls;
+  }
+
+  select(event) {
     this.dispatchEvent(
       new CustomEvent("select", {
         bubbles: true,
         composed: true,
-        detail: { node: this },
+        detail: {
+          node: this,
+          shiftKey: event.shiftKey
+        },
       })
     );
   }

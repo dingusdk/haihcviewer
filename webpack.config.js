@@ -13,7 +13,10 @@ module.exports = {
   module: {
     rules: [{
       test: /\.ts$/,
-      exclude: /node_modules/,
+      exclude: [
+        "/node_modules/",
+        "/homeassistant-frontend/",
+      ],
       use: [{
         loader: 'ts-loader',
       }]
