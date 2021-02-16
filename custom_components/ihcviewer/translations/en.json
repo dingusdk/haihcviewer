@@ -1,0 +1,16 @@
+{
+    "config": {
+        "error": {
+            "unknown": "Unknown error",
+            "already_setup": "This controller is already setup",
+            "no_ihc": "No IHC integration found",
+            "old_ihc": "Old IHC integration found. You must upgrade your IHC integration"
+        },
+        "step": {
+            "user": {
+                "description": "Add a viewer for your IHC controller to Home Assistant"
+            }
+        }
+    },
+    "title": "IHC Viewer"
+}
