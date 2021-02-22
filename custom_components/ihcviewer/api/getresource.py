@@ -1,3 +1,4 @@
+import datetime
 import logging
 from aiohttp import web
 
@@ -29,6 +30,10 @@ class ApiGetResource(ApiBase):
         )
         if value is None:
             return web.Response(status=404)
+        value_type = type(value).__name__
+        if isinstance(value, datetime.time):
+            value = f"{value.hour}:{value.minute:02d}:{value.second:02d}"
+            value_type = "time"
 
         entity_id = ""
         state = ""
@@ -41,7 +46,7 @@ class ApiGetResource(ApiBase):
         json = {
             "id": id,
             "value": value,
-            "type": type(value).__name__,
+            "type": value_type,
             "entity_id": entity_id,
             "manual": manual,
             "state": state,

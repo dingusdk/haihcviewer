@@ -194,6 +194,7 @@ export class IhcPropertiesElement extends LitElement {
             this.action_light = (<IHCResource>this.selectednode.data).IsLightLevel;
             this.action_sensor = onid == null;
             break;
+          case 'time' :
           case 'float':
             this.action_sensor = true;
             break;
