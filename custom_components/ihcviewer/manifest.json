@@ -7,5 +7,5 @@
   "requirements": ["ihcsdk==2.7.4"],
   "config_flow": true,
   "documentation": "https://github.com/dingusdk/haihcviewer",
-  "version": "1.2.6"
+  "version": "2.0.3"
 }
