@@ -1,11 +1,21 @@
 {
   "domain": "ihcviewer",
   "name": "IHC Viewer",
-  "codeowners": ["@dingusdk", "@msvinth"],
-  "dependencies": ["frontend", "lovelace", "ihc"],
+  "codeowners": [
+    "@dingusdk",
+    "@msvinth"
+  ],
+  "dependencies": [
+    "frontend",
+    "lovelace",
+    "ihc",
+    "ruamel"
+  ],
   "homeassistant": "0.114.0",
-  "requirements": ["ihcsdk==2.7.4"],
+  "requirements": [
+    "ihcsdk==2.7.4"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/dingusdk/haihcviewer",
-  "version": "2.0.3"
+  "version": "2.0.4"
 }
