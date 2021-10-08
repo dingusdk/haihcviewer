@@ -8,12 +8,12 @@
   "dependencies": [
     "frontend",
     "lovelace",
-    "ihc",
-    "ruamel"
+    "ihc"
   ],
   "homeassistant": "0.114.0",
   "requirements": [
-    "ihcsdk==2.7.4"
+    "ihcsdk==2.7.4",
+    "ruamel.yaml"
   ],
   "config_flow": true,
   "documentation": "https://github.com/dingusdk/haihcviewer",
