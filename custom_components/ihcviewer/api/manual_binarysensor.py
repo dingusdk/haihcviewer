@@ -3,7 +3,7 @@ import logging
 
 from homeassistant.core import callback, HomeAssistant
 from homeassistant.components.ihc import IHC_CONTROLLER
-from homeassistant.const import HTTP_BAD_REQUEST
+from http import HTTPStatus
 
 from .apibase import ApiBase
 from .mapper import IhcMapper
@@ -31,7 +31,9 @@ class ApiManualBinarySensor(ApiBase):
         body = await request.text()
         data = json.loads(body) if body else None
         if data is None or not isinstance(data, dict):
-            return self.json_message("Body should be a JSON object", HTTP_BAD_REQUEST)
+            return self.json_message(
+                "Body should be a JSON object", HTTPStatus.BAD_REQUEST
+            )
         id = int(data["id"])
         name = data.get("name")
         type = data.get("type")
