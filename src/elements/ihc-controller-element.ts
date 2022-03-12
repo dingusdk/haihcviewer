@@ -18,7 +18,7 @@ export class IhcControllerElement extends LitElement {
 //  @property({ attribute: false })
   private ihcproject: IHCProject;
 
-  @property({ type: String }) // I think there is a bug in boolean properties
+  @property({ type: Boolean })
   public show;
 
   @property({ type: String })
@@ -100,7 +100,7 @@ export class IhcControllerElement extends LitElement {
 
   render() {
     return html`
-        ${ this.show == "true" ? "" : html`<style>#content { display:none}</style>`}
+        ${ this.show ? "" : html`<style>#content { display:none}</style>`}
         ${ this.selectedtab == 0 ? html`` : html`<style>#project { display:none}</style>`}
         ${ this.selectedtab == 1 ? html`<style>#log { display:block}</style>` : html`<style>#log { display:none}</style>`}
         ${ this.selectedtab == 2 ? html`<style>#info { display:block}</style>` : html`<style>#info { display:none}</style>`}

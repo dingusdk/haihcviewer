@@ -28,6 +28,7 @@
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
+    "lit": "^2.2.0",
     "lit-element": "^2.5.0"
   }
 }
