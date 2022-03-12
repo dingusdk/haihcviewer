@@ -1,7 +1,7 @@
 // See https://aka.ms/vscode-remote/devcontainer.json for format details.
 {
   "name": "IHC Viewer Development",
-  "image": "ludeeus/container:monster",
+  "image": "ghcr.io/ludeeus/devcontainer/integration:stable",
   "context": "..",
   "appPort": ["5000:5000", "9123:8123"],
   "runArgs": [
