@@ -1,8 +1,9 @@
+"""ApiGetResource class."""
 import datetime
 import logging
 from aiohttp import web
 
-from homeassistant.core import callback, HomeAssistant
+from homeassistant.core import callback
 
 from .apibase import ApiBase
 from .mapper import IhcMapper
@@ -16,13 +17,9 @@ class ApiGetResource(ApiBase):
     name = "api:ihcviewer:getresource"
     url = "/api/ihcviewer/getresource/{controllerid}/{id}"
 
-    def __init__(self, hass: HomeAssistant):
-        """Initilalize the IHC api."""
-        self.hass = hass
-        self.ihc_controller = None
-
     @callback
     async def get(self, request, controllerid, id):
+        """Get a ihc resource from a ihc id."""
         id = int(id)
         self.initialize(controllerid)
         value = await self.hass.async_add_executor_job(

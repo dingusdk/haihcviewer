@@ -1,6 +1,7 @@
+"""ApiSystemInfo class"""
 import logging
 
-from homeassistant.core import callback, HomeAssistant
+from homeassistant.core import callback
 
 from .apibase import ApiBase
 
@@ -13,13 +14,9 @@ class ApiSystemInfo(ApiBase):
     name = "api:ihcviewer:systeminfo"
     url = "/api/ihcviewer/systeminfo/{controllerid}"
 
-    def __init__(self, hass: HomeAssistant):
-        """Initilalize the IHC api."""
-        self.hass = hass
-        self.ihc_controller = None
-
     @callback
     async def get(self, request, controllerid):
+        """Get the system info from the ihc controller"""
         self.initialize(controllerid)
         return self.json(
             await self.hass.async_add_executor_job(

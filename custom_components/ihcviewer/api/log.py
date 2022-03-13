@@ -1,7 +1,8 @@
+"""ApiLog class"""
 import logging
 from aiohttp import web
 
-from homeassistant.core import callback, HomeAssistant
+from homeassistant.core import callback
 
 from .apibase import ApiBase
 
@@ -14,13 +15,9 @@ class ApiLog(ApiBase):
     name = "api:ihcviewer:log"
     url = "/api/ihcviewer/log/{controllerid}"
 
-    def __init__(self, hass: HomeAssistant):
-        """Initilalize the IHC api."""
-        self.hass = hass
-        self.ihc_controller = None
-
     @callback
     async def get(self, request, controllerid):
+        """Get request."""
         self.initialize(controllerid)
         log = await self.hass.async_add_executor_job(
             self.ihc_controller.client.get_user_log, "en"

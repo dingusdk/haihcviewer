@@ -1,9 +1,10 @@
+"""ApiManualSwitch class"""
 import json
 import logging
 
-from homeassistant.core import callback, HomeAssistant
-from homeassistant.components.ihc import IHC_CONTROLLER
 from http import HTTPStatus
+
+from homeassistant.core import callback
 
 from .apibase import ApiBase
 from .mapper import IhcMapper
@@ -18,16 +19,10 @@ class ApiManualSwitch(ApiBase):
     name = "api:ihcviewer:manual:switch"
     url = "/api/ihcviewer/manual/switch/{controllerid}"
 
-    def __init__(self, hass: HomeAssistant):
-        """Initilalize the IHC api."""
-        self.hass = hass
-        self.ihc_controller = None
-
     @callback
     async def post(self, request, controllerid):
         """handle api post requests"""
         self.initialize(controllerid)
-        self.ihc_controller = self.hass.data["ihc"][controllerid][IHC_CONTROLLER]
         body = await request.text()
         data = json.loads(body) if body else None
         if data is None or not isinstance(data, dict):
@@ -47,6 +42,7 @@ class ApiManualSwitch(ApiBase):
     def make_switch(
         self, controller_id: str, id: int, name: str, on_id: int, off_id: int
     ):
+        """Make a new switch"""
         if IhcMapper.ismapped(controller_id, id):
             raise Exception("IHC resource id already added")
 
@@ -63,4 +59,3 @@ class ApiManualSwitch(ApiBase):
             controller_conf["switch"].append(switch)
         IhcMapper.set(controller_id, id, "not loaded yet. HA restart required.", True)
         write_manual_setup(self.hass, conf)
-        return

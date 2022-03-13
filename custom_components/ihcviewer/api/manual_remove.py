@@ -1,6 +1,7 @@
+"""ApiManualRemove class"""
 import logging
 
-from homeassistant.core import callback, HomeAssistant
+from homeassistant.core import callback
 
 from .apibase import ApiBase
 from .mapper import IhcMapper
@@ -12,15 +13,10 @@ IHC_PLATFORMS = ("binary_sensor", "light", "sensor", "switch")
 
 
 class ApiManualRemove(ApiBase):
-    """IHCViewer api log requests."""
+    """IHCViewer api remove resource  requests."""
 
     name = "api:ihcviewer:manual:remove"
     url = "/api/ihcviewer/manual/remove/{controllerid}/{id}"
-
-    def __init__(self, hass: HomeAssistant):
-        """Initilalize the IHC api."""
-        self.hass = hass
-        self.ihc_controller = None
 
     @callback
     async def post(self, request, controllerid, id):
@@ -34,7 +30,7 @@ class ApiManualRemove(ApiBase):
         )
 
     def remove_id(self, controller_id: str, id: int):
-
+        """Remove the specified ihc resource id"""
         conf = read_manual_setup(self.hass)
         controller_conf = get_controller_conf(conf, controller_id)
         for platform in IHC_PLATFORMS:
@@ -50,4 +46,3 @@ class ApiManualRemove(ApiBase):
                         )
                         break
         write_manual_setup(self.hass, conf)
-        return

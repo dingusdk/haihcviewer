@@ -1,3 +1,4 @@
+""" Constants used by ihcviewer."""
 NAME_SHORT = "IHCViewer"
 DOMAIN = "ihcviewer"
 VERSION = "2.0.6"

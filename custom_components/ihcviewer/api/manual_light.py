@@ -1,9 +1,10 @@
+"""ApiManualLight class"""
 import json
 import logging
 
-from homeassistant.core import callback, HomeAssistant
-from homeassistant.components.ihc import IHC_CONTROLLER
 from http import HTTPStatus
+
+from homeassistant.core import callback
 
 from .apibase import ApiBase
 from .mapper import IhcMapper
@@ -18,16 +19,10 @@ class ApiManualLight(ApiBase):
     name = "api:ihcviewer:manual:light"
     url = "/api/ihcviewer/manual/light/{controllerid}"
 
-    def __init__(self, hass: HomeAssistant):
-        """Initilalize the IHC api."""
-        self.hass = hass
-        self.ihc_controller = None
-
     @callback
     async def post(self, request, controllerid):
         """handle api post requests"""
         self.initialize(controllerid)
-        self.ihc_controller = self.hass.data["ihc"][controllerid][IHC_CONTROLLER]
         body = await request.text()
         data = json.loads(body) if body else None
         if data is None or not isinstance(data, dict):
@@ -52,6 +47,7 @@ class ApiManualLight(ApiBase):
         on_id: int,
         off_id: int,
     ):
+        """Make a new light"""
         if IhcMapper.ismapped(controller_id, id):
             raise Exception("IHC resource id already added")
 
@@ -68,4 +64,3 @@ class ApiManualLight(ApiBase):
             controller_conf["light"].append(light)
         IhcMapper.set(controller_id, id, "not loaded yet. HA restart required.", True)
         write_manual_setup(self.hass, conf)
-        return

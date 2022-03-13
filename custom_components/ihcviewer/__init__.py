@@ -5,6 +5,7 @@ see http://www.dingus.dk for more information
 """
 import logging
 import os.path
+from xmlrpc.client import Boolean, boolean
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
@@ -53,13 +54,14 @@ async def async_setup(hass: HomeAssistant, config):
     return True
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> boolean:
     """Set up the IHC Viewer from a config entry."""
 
     if "ihc" not in hass.data:
         if "ihc0" in hass.data:
             _LOGGER.error(
-                "IHCViewer 2.x does not support the old IHC integration. You must update your IHC integration"
+                "IHCViewer 2.x does not support the old IHC integration."
+                "You must update your IHC integration"
             )
         else:
             _LOGGER.error("IHC integration is not loaded")
@@ -70,10 +72,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     return True
 
 
-async def async_unload_entry(hass, entry):
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> boolean:
     """Unload a config entry."""
-    hass.components.frontend.async_remove_panel(hass, URL_PANEL)
-    return await hass.data[DOMAIN].async_unload_entry(entry)
+    hass.components.frontend.async_remove_panel(URL_PANEL)
+    hass.data.pop(DOMAIN)
+    return True
 
 
 def add_side_panel(hass):
@@ -97,7 +100,6 @@ def add_side_panel(hass):
         config=panelconf,
         require_admin=True,
     )
-    return
 
 
 def register_frontend(hass):
@@ -106,7 +108,7 @@ def register_frontend(hass):
     dirlist = os.listdir(path)
     for filename in dirlist:
         ext = os.path.splitext(filename)[1].lower()
-        if ext == ".png" or ext == ".html" or ext == ".js":
+        if ext in (".png", ".html", ".js"):
             hass.http.register_static_path(
                 f"/ihcviewer/frontend-{VERSION}/{filename}",
                 os.path.join(path, filename),

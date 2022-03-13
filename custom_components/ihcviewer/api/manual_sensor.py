@@ -1,9 +1,10 @@
+"""ApiManualSensor class"""
 import json
 import logging
 
-from homeassistant.core import callback, HomeAssistant
-from homeassistant.components.ihc import IHC_CONTROLLER
 from http import HTTPStatus
+
+from homeassistant.core import callback
 
 from .apibase import ApiBase
 from .mapper import IhcMapper
@@ -18,16 +19,10 @@ class ApiManualSensor(ApiBase):
     name = "api:ihcviewer:manual:sensor"
     url = "/api/ihcviewer/manual/sensor/{controllerid}"
 
-    def __init__(self, hass: HomeAssistant):
-        """Initilalize the IHC api."""
-        self.hass = hass
-        self.ihc_controller = None
-
     @callback
     async def post(self, request, controllerid):
         """handle api post requests"""
         self.initialize(controllerid)
-        self.ihc_controller = self.hass.data["ihc"][controllerid][IHC_CONTROLLER]
         body = await request.text()
         data = json.loads(body) if body else None
         if data is None or not isinstance(data, dict):
@@ -44,6 +39,7 @@ class ApiManualSensor(ApiBase):
         )
 
     def make_sensor(self, controller_id: str, id: int, name: str, unit: str):
+        """Make a new sensor."""
         if IhcMapper.ismapped(controller_id, id):
             raise Exception("IHC resource id already added")
 
@@ -58,4 +54,3 @@ class ApiManualSensor(ApiBase):
             controller_conf["sensor"].append(sensor)
         IhcMapper.set(controller_id, id, "not loaded yet. HA restart required.", True)
         write_manual_setup(self.hass, conf)
-        return

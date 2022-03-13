@@ -1,6 +1,7 @@
+"""ApiSetBoolResource class"""
 import logging
 
-from homeassistant.core import callback, HomeAssistant
+from homeassistant.core import callback
 
 from .apibase import ApiBase
 
@@ -13,13 +14,9 @@ class ApiSetBoolResource(ApiBase):
     name = "api:ihcviewer:setboolresource"
     url = "/api/ihcviewer/setboolresource/{controllerid}/{id}/{value}"
 
-    def __init__(self, hass: HomeAssistant):
-        """Initilalize the IHC api."""
-        self.hass = hass
-        self.ihc_controller = None
-
     @callback
     async def post(self, request, controllerid, id, value):
+        """Set a boolean ihc resource value"""
         id = int(id)
         self.initialize(controllerid)
         if value == "on":
@@ -37,6 +34,7 @@ class ApiSetBoolResource(ApiBase):
         return ""
 
     def toggle(self, id):
+        """Toggle a boolean resource on and off."""
         value = self.ihc_controller.get_runtime_value(id)
         self.ihc_controller.set_runtime_value_bool(id, not value)
         self.ihc_controller.set_runtime_value_bool(id, value)
