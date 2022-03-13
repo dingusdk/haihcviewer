@@ -18,10 +18,10 @@ export class IhcControllerElement extends LitElement {
 //  @property({ attribute: false })
   private ihcproject: IHCProject;
 
-  @property({ type: Boolean })
+  @property({ type: Boolean, attribute: true })
   public show;
 
-  @property({ type: String })
+  @property({ type: String, attribute: true })
   public controllerId;
 
   @property({ type: Boolean, attribute: false })
