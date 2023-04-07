@@ -14,8 +14,8 @@
   //  "appPort": [],
   // installs all requirements in requirements.txt and the components manifests.json
   "updateContentCommand": {
-    "requirements": "pip3 install --user homeassistant",
-    "component_requirements": "pip3 install --user $(cat custom_components/ihcviewer/manifest.json | jq -r '.requirements|join(\" \")')"
+    "requirements": "pip3 install homeassistant"
+    //    "component_requirements": "pip3 install $(cat custom_components/ihcviewer/manifest.json | jq -r '.requirements|join(\" \")')"
   },
   // Configure tool-specific properties.
   // "customizations": {},

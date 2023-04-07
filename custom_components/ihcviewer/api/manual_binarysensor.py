@@ -32,7 +32,7 @@ class ApiManualBinarySensor(ApiBase):
         id = int(data["id"])
         name = data.get("name")
         type = data.get("type")
-        inverting = data.get("inverting")
+        inverting = data.get("inverted")
         return self.json(
             await self.hass.async_add_executor_job(
                 self.make_binary_sensor, controllerid, id, name, type, inverting
