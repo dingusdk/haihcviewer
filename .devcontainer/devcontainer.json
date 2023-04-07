@@ -1,35 +1,45 @@
-// See https://aka.ms/vscode-remote/devcontainer.json for format details.
 {
-  "name": "IHC Viewer Development",
-  "image": "ghcr.io/ludeeus/devcontainer/integration:stable",
-  "context": "..",
-  "appPort": ["5000:5000", "9123:8123"],
-  "runArgs": [
-    // "-v",
-    // "${env:HOME}${env:USERPROFILE}/.ssh:/tmp/.ssh" // This is added so you can push from inside the container
+  "name": "ihcviewer",
+  "dockerComposeFile": "docker-compose.yaml",
+  "service": "ha",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "ln -s /workspace/custom_components/ /workspace/.config/",
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  // "features": {},
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  "forwardPorts": [
+    5678,
+    8123
   ],
-  "extensions": [
-    "ms-python.python",
-    "visualstudioexptteam.vscodeintellicode",
-    "github.vscode-pull-request-github",
-    "eamodio.gitlens",
-    "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode",
-    "bierner.lit-html",
-    "runem.lit-plugin",
-    "auchenberg.vscode-browser-preview",
-    "davidanson.vscode-markdownlint",
-    "redhat.vscode-yaml",
-    "oderwat.indent-rainbow"
-  ],
-  "settings": {
-    "files.eol": "\n",
-    "editor.tabSize": 2,
-    "terminal.integrated.shell.linux": "/bin/bash",
-    "editor.formatOnPaste": false,
-    "editor.formatOnSave": true,
-    "editor.formatOnType": true,
-    "files.trimTrailingWhitespace": true,
-    "yaml.customTags": ["!secret scalar"]
+  //  "appPort": [],
+  // installs all requirements in requirements.txt and the components manifests.json
+  "updateContentCommand": {
+    "requirements": "pip3 install --user homeassistant",
+    "component_requirements": "pip3 install --user $(cat custom_components/ihcviewer/manifest.json | jq -r '.requirements|join(\" \")')"
+  },
+  // Configure tool-specific properties.
+  // "customizations": {},
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "files.eol": "\n",
+        "editor.tabSize": 2,
+        "editor.formatOnPaste": false,
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "files.trimTrailingWhitespace": true,
+        "yaml.customTags": [
+          "!secret scalar"
+        ]
+      },
+      "extensions": [
+        "ms-python.python",
+        "github.vscode-pull-request-github",
+        "ryanluker.vscode-coverage-gutters",
+        "ms-python.vscode-pylance"
+      ]
+    }
   }
 }

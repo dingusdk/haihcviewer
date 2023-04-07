@@ -1,7 +1,6 @@
 homeassistant:
   name: Home
   unit_system: metric
-#  time_zone: Europe/Copenhagen
 
 frontend:
 config:
@@ -12,9 +11,10 @@ api:
 automation:
 
 logger:
-  default: debug
+  default: info
   logs:
-    custom_components.ihc: debug
+    custom_components.ihcviewer: debug
+
 # ihc:
 #   - url: !secret ihc_url
 #     username: !secret ihc_username
