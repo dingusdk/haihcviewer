@@ -19,7 +19,8 @@ class ApiBase(HomeAssistantView):
 
     def initialize(self, controller_id):
         """Initialize the view with the associated ihc controller"""
-        if controller_id not in self.hass.data["ihc"]:
-            _LOGGER.error("Controller %s not found.", controller_id)
-            return
-        self.ihc_controller = self.hass.data["ihc"][controller_id][IHC_CONTROLLER]
+        for entry_id, data in self.hass.data["ihc"].items():
+            if data['controller_id'] == controller_id:
+                self.ihc_controller = data['controller']
+                return
+        _LOGGER.error("Controller %s not found.", controller_id)
