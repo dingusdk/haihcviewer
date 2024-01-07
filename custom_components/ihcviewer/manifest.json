@@ -17,5 +17,5 @@
   ],
   "config_flow": true,
   "documentation": "https://github.com/dingusdk/haihcviewer",
-  "version": "2.0.9"
+  "version": "2024.1.1"
 }
