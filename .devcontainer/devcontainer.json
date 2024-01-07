@@ -3,7 +3,10 @@
   "dockerComposeFile": "docker-compose.yaml",
   "service": "ha",
   "workspaceFolder": "/workspace",
-  "postCreateCommand": "ln -s /workspace/custom_components/ /workspace/.config/",
+  "postCreateCommand": {
+    "link1": "ln -s /workspace/custom_components/ /workspace/.config/",
+    "link2": "ln -s /workspace/haihc-betatest/custom_components/ihc /workspace/.config/custom_components"
+  },
   // Features to add to the dev container. More info: https://containers.dev/features.
   // "features": {},
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
