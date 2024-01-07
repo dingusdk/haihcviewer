@@ -67,7 +67,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> boolean:
             _LOGGER.error("IHC integration is not loaded")
         return False
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN] =  [ v['controller_id'] for v in hass.data["ihc"].values()]
+    try:
+        hass.data[DOMAIN] =  [ v['controller_id'] for v in hass.data["ihc"].values()]
+    except KeyError:
+        _LOGGER.error(
+                "IHCViewer does not support the old IHC integration."
+                "You must update your IHC integration")
+        return False
+
     add_side_panel(hass)
     return True
 
