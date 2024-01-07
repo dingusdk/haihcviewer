@@ -1,3 +1,6 @@
 [submodule "homeassistant-frontend"]
 	path = homeassistant-frontend
 	url = https://github.com/home-assistant/frontend
+[submodule "haihc-betatest"]
+	path = haihc-betatest
+	url = https://github.com/dingusdk/haihc-betatest
