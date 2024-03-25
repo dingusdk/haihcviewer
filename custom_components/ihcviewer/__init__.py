@@ -9,6 +9,7 @@ from xmlrpc.client import Boolean, boolean
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.components.frontend import async_register_built_in_panel
 
 from .const import DOMAIN, NAME_SHORT, URL_PANEL, VERSION
 
@@ -99,7 +100,8 @@ def add_side_panel(hass):
     panelconf["_panel_custom"] = custom_panel_config
     panelconf["version"] = VERSION
     panelconf[DOMAIN] = hass.data[DOMAIN]
-    hass.components.frontend.async_register_built_in_panel(
+    async_register_built_in_panel(
+        hass,
         component_name="custom",
         frontend_url_path=URL_PANEL,
         sidebar_title=NAME_SHORT,
