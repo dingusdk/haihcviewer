@@ -1,5 +1,6 @@
-import { html, css, customElement, property } from "lit-element";
-import { IhcResourceDialog} from "./ihc-resource-dlg"
+import { customElement, property } from 'lit/decorators.js';
+import { IhcResourceDialog } from "./ihc-resource-dlg"
+import { CSSResultGroup, css, html } from 'lit';
 
 @customElement("ihc-binary-res-dlg")
 export class IhcBinaryResourceDialog extends IhcResourceDialog {
@@ -8,7 +9,7 @@ export class IhcBinaryResourceDialog extends IhcResourceDialog {
   public inverted: boolean;
 
   @property({ type: String, attribute: false })
-  public type : string;
+  public type: string;
 
   constructor() {
     super();
@@ -16,7 +17,7 @@ export class IhcBinaryResourceDialog extends IhcResourceDialog {
   }
 
   static get styles() {
-    return super.styles.concat( [
+    return super.styles.concat([
       css`
         #type {
           width: 100%;

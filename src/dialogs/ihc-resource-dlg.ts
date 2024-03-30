@@ -1,4 +1,5 @@
-import { LitElement, html, css, customElement, property, CSSResult } from "lit-element";
+import { LitElement, css, html } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 
 
 // Base class for all resource dialogs
@@ -123,7 +124,7 @@ export class IhcResourceDialog extends LitElement {
     `;
   }
 
-  async firstUpdated( changedProperties) {
+  async firstUpdated(changedProperties) {
     super.firstUpdated(changedProperties);
 
     this.shadowRoot.getElementById("name").focus();

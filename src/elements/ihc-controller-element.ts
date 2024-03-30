@@ -1,10 +1,11 @@
-import { LitElement, html, css, customElement, property } from "lit-element";
+import { customElement, property } from 'lit/decorators.js';
 import { haStyle } from "../../homeassistant-frontend/src/resources/styles"
 
 import { IHCProject, IHCResource } from "../ihcproject";
 import { IhcPropertiesElement } from "./ihc-properties-element"
 import { IhcTreeNode, Selection } from "./ihc-tree-node"
 import { IHCManager } from "../ihcmanager";
+import { LitElement, css, html } from 'lit';
 
 require("./ihc-info-element");
 require("./ihc-log-element");
@@ -15,7 +16,7 @@ require("./ihc-tree-node");
 export class IhcControllerElement extends LitElement {
 
   private ihcmapping;
-//  @property({ attribute: false })
+  //  @property({ attribute: false })
   private ihcproject: IHCProject;
 
   @property({ type: Boolean, attribute: true })
@@ -100,10 +101,10 @@ export class IhcControllerElement extends LitElement {
 
   render() {
     return html`
-        ${ this.show ? "" : html`<style>#content { display:none}</style>`}
-        ${ this.selectedtab == 0 ? html`` : html`<style>#project { display:none}</style>`}
-        ${ this.selectedtab == 1 ? html`<style>#log { display:block}</style>` : html`<style>#log { display:none}</style>`}
-        ${ this.selectedtab == 2 ? html`<style>#info { display:block}</style>` : html`<style>#info { display:none}</style>`}
+        ${this.show ? "" : html`<style>#content { display:none}</style>`}
+        ${this.selectedtab == 0 ? html`` : html`<style>#project { display:none}</style>`}
+        ${this.selectedtab == 1 ? html`<style>#log { display:block}</style>` : html`<style>#log { display:none}</style>`}
+        ${this.selectedtab == 2 ? html`<style>#info { display:block}</style>` : html`<style>#info { display:none}</style>`}
         <div id="content" class="flex-container">
           <div id="controllertab">
             <div class="tab-button ${this.selectedtab == 0 ? 'selected' : ''}" @click=${this.selectTab} data-tabid='0'>Project</div>
@@ -130,7 +131,7 @@ export class IhcControllerElement extends LitElement {
   render_groups() {
 
     if (this.ihcproject == null || this.isProjectLoading) return "";
-    return this.ihcproject.Groups.map( item => html`
+    return this.ihcproject.Groups.map(item => html`
       <ihc-tree-node id="group_${item.Id}"></ihc-tree-node>
     `);
   }
@@ -165,14 +166,14 @@ export class IhcControllerElement extends LitElement {
     for (let id in this.ihcmapping) {
       let entity = this.ihcmapping[id];
       if ('changed' in entity) {
-        let restartevent = new CustomEvent("restartrequired", { bubbles: true, composed: true});
+        let restartevent = new CustomEvent("restartrequired", { bubbles: true, composed: true });
         this.dispatchEvent(restartevent);
         break;
       }
     }
     this.ihcproject = await IHCManager.instance.get(this.controllerId).getProject();
     if (this.ihcproject) {
-      this.updateProject( this.ihcproject);
+      this.updateProject(this.ihcproject);
     }
     this.isProjectLoading = false;
   }
@@ -232,7 +233,7 @@ export class IhcControllerElement extends LitElement {
         this.onselected = node;
         node.selected = Selection.OnIdSelected;
       }
-      properties.setSelected( this.selected,this.onselected?.data.Id,this.offselected?.data.Id);
+      properties.setSelected(this.selected, this.onselected?.data.Id, this.offselected?.data.Id);
       return false;
     }
     if (this.selected) {
@@ -251,8 +252,8 @@ export class IhcControllerElement extends LitElement {
     if (node == null) return false;
     this.selected = node;
     this.selected.selected = Selection.Selected;
-    if ( node.data instanceof IHCResource) {
-      properties.setSelected( this.selected);
+    if (node.data instanceof IHCResource) {
+      properties.setSelected(this.selected);
     }
     return false;
   }

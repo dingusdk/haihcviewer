@@ -1,5 +1,6 @@
-import { LitElement, html, css, customElement, property } from "lit-element";
+import { customElement, property } from 'lit/decorators.js';
 import { IHCManager } from "../ihcmanager";
+import { LitElement, css, html } from 'lit';
 
 require("./loader-element");
 
@@ -8,10 +9,10 @@ export class IhcInfoElement extends LitElement {
 
   private systeminfo;
 
-  @property({ type: String, reflect:true })
+  @property({ type: String, reflect: true })
   public controllerId;
 
-  @property({ type: Boolean, attribute : false })
+  @property({ type: Boolean, attribute: false })
   public isLoading = false;
 
   static get styles() {
@@ -67,10 +68,10 @@ export class IhcInfoElement extends LitElement {
     }
   }
 
-  uptimeAsString() : string {
+  uptimeAsString(): string {
     var uptimestr = "";
     if (this.systeminfo != null) {
-      var uptime : number = parseInt( this.systeminfo.uptime) / 1000;
+      var uptime: number = parseInt(this.systeminfo.uptime) / 1000;
       var days = Math.floor(uptime / 60 / 60 / 24);
       if (days > 0) {
         uptimestr += days + " days ";
@@ -81,7 +82,7 @@ export class IhcInfoElement extends LitElement {
         uptimestr += hours + " hours ";
         uptime -= hours * 60 * 60;
       }
-      var minutes  = Math.floor(uptime / 60);
+      var minutes = Math.floor(uptime / 60);
       if (days > 0 || hours > 0 || minutes > 0) {
         uptimestr += minutes + " min ";
         uptime -= minutes * 60;

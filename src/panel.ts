@@ -1,6 +1,7 @@
-import { LitElement, html, css, customElement, property } from "lit-element";
+import { customElement, property } from 'lit/decorators.js';
 import { haStyle } from "../homeassistant-frontend/src/resources/styles"
 import { IHCManager } from "./ihcmanager";
+import { CSSResultGroup, LitElement, css, html } from "lit";
 
 require("./elements/ihc-controller-element");
 require("./ihcmanager");
@@ -34,40 +35,44 @@ export class HaPanelIHCViewer extends LitElement {
   @property({ type: Boolean, attribute: false })
   public restartRequired = false;
 
-  static get styles() {
+  static panelStyles =
+    css`
+    #ihcviewer {
+      width: 100%;
+      height: 100%;
+    }
+    #ihcviewerheader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: var(--app-header-background-color);
+      color: var(--app-header-text-color);
+    }
+    #title {
+      padding: 15px 10px 0px 10px;
+      font-size: 20px;
+      height: calc( var(--header-height) - 16px);
+    }
+    #controllerselector {
+      justify-self: right;
+      padding-right: 10px;
+    }
+    #controllers {
+      height: calc(100% - var(--header-height));
+    }
+    #restartrequired {
+      display: inline-block;
+      animation: blinker 1s linear infinite;
+      cursor: default;
+    }
+    @keyframes blinker { 50% { opacity: 0;}}
+  `;
+
+  static get styles(): CSSResultGroup {
     return [
       haStyle,
-      css`
-      #ihcviewer {
-        width: 100%;
-        height: 100%;
-      }
-      #ihcviewerheader {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background-color: var(--app-header-background-color);
-        color: var(--app-header-text-color);
-      }
-      #title {
-        padding: 15px 10px 0px 10px;
-        font-size: 20px;
-        height: calc( var(--header-height) - 16px);
-      }
-      #controllerselector {
-        justify-self: right;
-        padding-right: 10px;
-      }
-      #controllers {
-        height: calc(100% - var(--header-height));
-      }
-      #restartrequired {
-        display: inline-block;
-        animation: blinker 1s linear infinite;
-        cursor: default;
-      }
-      @keyframes blinker { 50% { opacity: 0;}}
-    `];
+      HaPanelIHCViewer.panelStyles
+    ];
   }
 
 
@@ -120,7 +125,7 @@ export class HaPanelIHCViewer extends LitElement {
     this.selectedcontrollerid = event.target.value;
   }
 
-  onRestartRequired( event) {
+  onRestartRequired(event) {
     this.restartRequired = true;
     return false;
   }
