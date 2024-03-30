@@ -1,4 +1,3 @@
-import { property } from "lit-element";
 import { IHCProject } from "./ihcproject";
 
 /*
@@ -16,10 +15,10 @@ export class IHCManager {
   }
 
   static initialize(hass) {
-    IHCManager.theoneandonly = new IHCManager( hass)
+    IHCManager.theoneandonly = new IHCManager(hass)
   }
 
-  static get instance() : IHCManager {
+  static get instance(): IHCManager {
     return IHCManager.theoneandonly;
   }
 
@@ -34,7 +33,7 @@ export class IHCManager {
     return this.controllers[controllerId];
   }
 
-  async fetchWithAuth(input: RequestInfo, init: RequestInit = {}) : Promise<Response> {
+  async fetchWithAuth(input: RequestInfo, init: RequestInit = {}): Promise<Response> {
     let auth = this.hass.connection.options.auth;
     if (auth.expired) {
       await auth.refreshAccessToken();
@@ -43,7 +42,7 @@ export class IHCManager {
       init.headers = {};
     }
     init.headers['authorization'] = `Bearer ${auth.accessToken}`;
-    return await fetch( input,init);
+    return await fetch(input, init);
 
   }
 }
@@ -61,7 +60,7 @@ class IHCController {
     this.ihcmapping = null;
   }
 
-  async getProject() : Promise<IHCProject> {
+  async getProject(): Promise<IHCProject> {
 
     if (this.project == null) {
       let response = await IHCManager.instance.fetchWithAuth(`/api/ihcviewer/project/${this.controllerId}`);

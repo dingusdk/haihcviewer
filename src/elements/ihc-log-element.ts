@@ -1,18 +1,19 @@
-import { LitElement, html, css, customElement, property } from "lit-element";
+import { customElement, property } from 'lit/decorators.js';
 import { IHCManager } from "../ihcmanager";
+import { LitElement, css, html } from 'lit';
 
 require("./loader-element");
 
 @customElement("ihc-log")
 export class IhcLogElement extends LitElement {
 
-  @property({ type: String, reflect:true })
+  @property({ type: String, reflect: true })
   public controllerId;
 
-  @property({ type: String, attribute : false })
+  @property({ type: String, attribute: false })
   public log = "";
 
-  @property({ type: Boolean, attribute : false })
+  @property({ type: Boolean, attribute: false })
   public isLogLoading = false;
 
   static get styles() {

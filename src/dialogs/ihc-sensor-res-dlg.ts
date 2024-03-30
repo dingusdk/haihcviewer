@@ -1,11 +1,12 @@
-import { html, css, customElement, property } from "lit-element";
-import { IhcResourceDialog} from "./ihc-resource-dlg"
+import { customElement, property } from 'lit/decorators.js';
+import { IhcResourceDialog } from "./ihc-resource-dlg"
+import { css, html } from 'lit';
 
 @customElement("ihc-sensor-res-dlg")
 export class IhcSensorResourceDialog extends IhcResourceDialog {
 
   @property({ type: String, attribute: false })
-  public unit : string;
+  public unit: string;
 
   constructor() {
     super();
@@ -39,7 +40,7 @@ export class IhcSensorResourceDialog extends IhcResourceDialog {
   }
 
   async onOk() {
-    this.unit  = (<HTMLInputElement>this.shadowRoot.getElementById("unit")).value;
+    this.unit = (<HTMLInputElement>this.shadowRoot.getElementById("unit")).value;
     super.onOk();
   }
 }

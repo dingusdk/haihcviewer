@@ -1,4 +1,5 @@
-import { LitElement, html, css, customElement, property } from "lit-element";
+import { LitElement, css, html } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 
 export enum Selection {
   NotSelected,
@@ -17,7 +18,7 @@ export class IhcTreeNode extends LitElement {
   public expanded = false;
 
   @property({ type: Number })
-  public selected : Selection = Selection.NotSelected;
+  public selected: Selection = Selection.NotSelected;
 
   static get styles() {
     return css`
@@ -106,7 +107,7 @@ export class IhcTreeNode extends LitElement {
       <div id="treenode" class="treenode ${this.getNodeClasses()}">
         <span style="display: flex; flex-direction: row">
           <span>
-            ${ this.render_expandicon() }
+            ${this.render_expandicon()}
             <span class="treeicon ${this.data.iconclass}">
               <span class="connection">
                 <svg style="width: 16px; height: 16px" viewBox="0 0 24 24">
@@ -135,17 +136,16 @@ export class IhcTreeNode extends LitElement {
           </span>
           <span style="display: flex; flex-direction: column">
             <span class="treetext ${this.getTextClasses()}" @click=${this.select}>${this.data.Name}</span>
-            ${
-              this.data.Note
-                ? html` <span class="treeinfo">Note: ${this.data.Note}</span> `
-                : ""
-            }
-            ${ this.data.Position ?
-                  html`<span class="treeinfo">Position: ${this.data.Position}</span>` : ""
-            }
+            ${this.data.Note
+        ? html` <span class="treeinfo">Note: ${this.data.Note}</span> `
+        : ""
+      }
+            ${this.data.Position ?
+        html`<span class="treeinfo">Position: ${this.data.Position}</span>` : ""
+      }
           </span>
         </span>
-        ${ this.render_children() }
+        ${this.render_children()}
       </div>
       </template>
     `;
@@ -225,8 +225,8 @@ export class IhcTreeNode extends LitElement {
   getTextClasses() {
 
     let cls = "";
-    if ( this.selected == Selection.OnIdSelected) cls += " onselected";
-    if ( this.selected == Selection.OffIdSelected) cls += " offselected";
+    if (this.selected == Selection.OnIdSelected) cls += " onselected";
+    if (this.selected == Selection.OffIdSelected) cls += " offselected";
     return cls;
   }
 

@@ -1,13 +1,14 @@
-import { LitElement, html, css, customElement, property } from "lit-element";
+import { customElement, property } from 'lit/decorators.js';
 
 import { IhcBinaryResourceDialog } from "../dialogs/ihc-binary-res-dlg";
-import { IhcResourceDialog} from "../dialogs/ihc-resource-dlg"
+import { IhcResourceDialog } from "../dialogs/ihc-resource-dlg"
 import { IhcSensorResourceDialog } from "../dialogs/ihc-sensor-res-dlg";
 
 import { copyTextToClipboard } from "../copytoclipboard";
 import { IHCManager } from "../ihcmanager";
 import { IhcTreeNode } from "./ihc-tree-node";
 import { IHCResource } from "../ihcproject";
+import { LitElement, css, html } from 'lit';
 
 require("../dialogs/ihc-resource-dlg");
 require("../dialogs/ihc-binary-res-dlg");
@@ -18,16 +19,16 @@ require("./loader-element");
 @customElement("ihc-properties")
 export class IhcPropertiesElement extends LitElement {
 
-  private action_binary_sensor : boolean;
-  private action_light : boolean;
-  private action_sensor : boolean;
-  private action_switch : boolean;
+  private action_binary_sensor: boolean;
+  private action_light: boolean;
+  private action_sensor: boolean;
+  private action_switch: boolean;
   private selectednode: IhcTreeNode;
 
   @property({ type: String })
   public controllerId;
 
-  @property({ type: Boolean, attribute : false })
+  @property({ type: Boolean, attribute: false })
   public isLoading = false;
 
   @property({ type: Object, attribute: false })
@@ -117,19 +118,19 @@ export class IhcPropertiesElement extends LitElement {
         ` : ""}
       </div>
       <div id="actions">
-        ${ this.selected?.manual ? html`
+        ${this.selected?.manual ? html`
           <button @click=${this.removeManual}>Remove manual setup</button>
           <div>
             This resource is setup manually, and you can remove the manual setup by clicking the buttom above.
             (A restart is required)
           </div>
         ` : ""}
-        ${ this.action_binary_sensor ? html`<button @click=${() => { this.showDialog("binary-dlg") }}>Binary sensor</button>`: ""}
-        ${ this.action_light ? html`<button @click=${() => { this.showDialog("light-dlg") }}>Light</button>`: ""}
-        ${ this.action_sensor ? html`<button @click=${() => { this.showDialog("sensor-dlg") }}>Sensor</button>`: ""}
-        ${ this.action_switch ? html`<button @click=${() => { this.showDialog("switch-dlg") }}>Switch</button>` : ""}
-        ${ this.action_binary_sensor || this.action_light || this.action_sensor || this.action_switch ?
-          html`<div>
+        ${this.action_binary_sensor ? html`<button @click=${() => { this.showDialog("binary-dlg") }}>Binary sensor</button>` : ""}
+        ${this.action_light ? html`<button @click=${() => { this.showDialog("light-dlg") }}>Light</button>` : ""}
+        ${this.action_sensor ? html`<button @click=${() => { this.showDialog("sensor-dlg") }}>Sensor</button>` : ""}
+        ${this.action_switch ? html`<button @click=${() => { this.showDialog("switch-dlg") }}>Switch</button>` : ""}
+        ${this.action_binary_sensor || this.action_light || this.action_sensor || this.action_switch ?
+        html`<div>
             To make a manual setup of this ihc resource id as a Home Assistant entity, click one of the buttons.
             Note: this is a manual setup. You should know what you are doing.
             Just because it is possible to add something, does not mean it make sense.
@@ -164,7 +165,7 @@ export class IhcPropertiesElement extends LitElement {
     super.connectedCallback();
   }
 
-  async setSelected(selectednode : IhcTreeNode, onid = null, offid = null) {
+  async setSelected(selectednode: IhcTreeNode, onid = null, offid = null) {
     this.on_id = onid;
     this.off_id = offid;
     if (selectednode == null) {
@@ -183,7 +184,7 @@ export class IhcPropertiesElement extends LitElement {
       `/api/ihcviewer/getresource/${this.controllerId}/${selectedid}`);
     if (response.ok) {
       this.selected = await response.json();
-      if (this.selected != null && this.selected.type && ! this.selected.entity_id) {
+      if (this.selected != null && this.selected.type && !this.selected.entity_id) {
         switch (this.selected.type) {
           case 'bool':
             this.action_binary_sensor = onid == null;
@@ -194,7 +195,7 @@ export class IhcPropertiesElement extends LitElement {
             this.action_light = (<IHCResource>this.selectednode.data).IsLightLevel;
             this.action_sensor = onid == null;
             break;
-          case 'time' :
+          case 'time':
           case 'float':
             this.action_sensor = true;
             break;
@@ -227,9 +228,9 @@ export class IhcPropertiesElement extends LitElement {
       data, 'POST');
     this.selectednode.data.iconclass += " connected";
     this.selectednode.requestUpdate();
-      // Reload properties
+    // Reload properties
     await this.setSelected(this.selectednode);
-    let restartevent = new CustomEvent("restartrequired", { bubbles: true, composed: true});
+    let restartevent = new CustomEvent("restartrequired", { bubbles: true, composed: true });
     this.dispatchEvent(restartevent);
   }
 
@@ -316,13 +317,13 @@ export class IhcPropertiesElement extends LitElement {
 
   async apiRequest(url: string, data, method: string = "GET") {
 
-    let response = await IHCManager.instance.fetchWithAuth( url, {
+    let response = await IHCManager.instance.fetchWithAuth(url, {
       method: method,
       cache: 'no-cache',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify( data)
+      body: JSON.stringify(data)
     });
     if (response.ok) {
       return await response.text();
