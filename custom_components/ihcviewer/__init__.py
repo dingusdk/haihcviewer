@@ -3,12 +3,14 @@ IHC Viever component.
 
 see http://www.dingus.dk for more information
 """
+
 import logging
 import os.path
 from xmlrpc.client import Boolean, boolean
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.components.frontend import async_register_built_in_panel
 
 from .const import DOMAIN, NAME_SHORT, URL_PANEL, VERSION
@@ -40,7 +42,7 @@ async def async_setup(hass: HomeAssistant, config):
         _LOGGER.error("Setup using configuration is not supported anymore")
         return False
 
-    register_frontend(hass)
+    await async_register_frontend(hass)
     hass.http.register_view(ApiGetResource(hass))
     hass.http.register_view(ApiLog(hass))
     hass.http.register_view(ApiManualBinarySensor(hass))
@@ -69,11 +71,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> boolean:
         return False
     hass.data.setdefault(DOMAIN, {})
     try:
-        hass.data[DOMAIN] =  [ v['controller_id'] for v in hass.data["ihc"].values()]
+        hass.data[DOMAIN] = [v["controller_id"] for v in hass.data["ihc"].values()]
     except KeyError:
         _LOGGER.error(
-                "IHCViewer does not support the old IHC integration."
-                "You must update your IHC integration")
+            "IHCViewer does not support the old IHC integration."
+            "You must update your IHC integration"
+        )
         return False
 
     add_side_panel(hass)
@@ -111,14 +114,19 @@ def add_side_panel(hass):
     )
 
 
-def register_frontend(hass):
+async def async_register_frontend(hass):
     """Register frontend static files."""
     path = os.path.join(os.path.dirname(__file__), "frontend")
-    dirlist = os.listdir(path)
+    dirlist = await hass.async_add_executor_job(os.listdir, path)
     for filename in dirlist:
         ext = os.path.splitext(filename)[1].lower()
         if ext in (".png", ".html", ".js"):
-            hass.http.register_static_path(
-                f"/ihcviewer/frontend-{VERSION}/{filename}",
-                os.path.join(path, filename),
+            await hass.http.async_register_static_paths(
+                [
+                    StaticPathConfig(
+                        f"/ihcviewer/frontend-{VERSION}/{filename}",
+                        os.path.join(path, filename),
+                        True,
+                    )
+                ]
             )
