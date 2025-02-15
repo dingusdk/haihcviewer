@@ -3,6 +3,7 @@ IHC Viever component.
 
 see http://www.dingus.dk for more information
 """
+
 import logging
 import os.path
 from xmlrpc.client import Boolean, boolean
@@ -70,11 +71,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> boolean:
         return False
     hass.data.setdefault(DOMAIN, {})
     try:
-        hass.data[DOMAIN] =  [ v['controller_id'] for v in hass.data["ihc"].values()]
+        hass.data[DOMAIN] = [v["controller_id"] for v in hass.data["ihc"].values()]
     except KeyError:
         _LOGGER.error(
-                "IHCViewer does not support the old IHC integration."
-                "You must update your IHC integration")
+            "IHCViewer does not support the old IHC integration."
+            "You must update your IHC integration"
+        )
         return False
 
     add_side_panel(hass)
@@ -115,8 +117,16 @@ def add_side_panel(hass):
 async def async_register_frontend(hass):
     """Register frontend static files."""
     path = os.path.join(os.path.dirname(__file__), "frontend")
-    dirlist = await hass.async_add_executor_job(os.listdir,path)
+    dirlist = await hass.async_add_executor_job(os.listdir, path)
     for filename in dirlist:
         ext = os.path.splitext(filename)[1].lower()
         if ext in (".png", ".html", ".js"):
-            await hass.http.async_register_static_paths([StaticPathConfig( f"/ihcviewer/frontend-{VERSION}/{filename}",os.path.join(path, filename), True)])
+            await hass.http.async_register_static_paths(
+                [
+                    StaticPathConfig(
+                        f"/ihcviewer/frontend-{VERSION}/{filename}",
+                        os.path.join(path, filename),
+                        True,
+                    )
+                ]
+            )
