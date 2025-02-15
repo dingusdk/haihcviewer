@@ -9,11 +9,18 @@ configurator:
 http:
 api:
 automation:
+recorder:
+  include:
+    domains:
+      - binary_sensor
+history:
+logbook:
 
 logger:
   default: info
   logs:
     custom_components.ihcviewer: debug
+    custom_components.ihc: debug
 
 # ihc:
 #   - url: !secret ihc_url

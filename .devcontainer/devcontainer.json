@@ -4,8 +4,9 @@
   "service": "ha",
   "workspaceFolder": "/workspace",
   "postCreateCommand": {
-    "link1": "ln -s /workspace/custom_components/ /workspace/.config/",
-    "link2": "ln -s /workspace/haihc-betatest/custom_components/ihc /workspace/.config/custom_components"
+    "link1": "ln -sf /workspace/custom_components/ /workspace/.config/",
+    // the IHC integration also need to be available
+    "link2": "ln -sf /workspace/haihc-betatest/custom_components/ihc /workspace/.config/custom_components"
   },
   // Features to add to the dev container. More info: https://containers.dev/features.
   // "features": {},
