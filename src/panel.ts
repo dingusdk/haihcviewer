@@ -123,6 +123,7 @@ export class HaPanelIHCViewer extends LitElement {
 
   onChangeController(event) {
     this.selectedcontrollerid = event.target.value;
+    this.requestUpdate();
   }
 
   onRestartRequired(event) {

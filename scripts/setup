@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd "$(dirname "$0")/.."
+ln -sf /workspaces/haihcviewer/haihc-betatest/custom_components/ihc /workspaces/haihcviewer/custom_components
+python3 -m pip install --upgrade pip
+python3 -m pip install --requirement requirements.txt

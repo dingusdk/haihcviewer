@@ -1,0 +1,28 @@
+homeassistant:
+  name: Home
+  unit_system: metric
+
+#default_config:
+
+frontend:
+config:
+system_health:
+configurator:
+http:
+api:
+automation:
+recorder:
+  include:
+    domains:
+      - binary_sensor
+history:
+logbook:
+
+logger:
+  default: info
+  logs:
+    custom_components.ihcviewer: debug
+#    custom_components.ihc: debug
+
+#debugpy:
+#  wait: true

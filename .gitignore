@@ -1,12 +1,23 @@
 secrets.yaml
+
+# artifacts
 __pycache__
+.pytest*
+*.egg-info
+*/build/*
+*/dist/*
+
+
+# misc
+.coverage
+.vscode
+coverage.xml
+.ruff_cache
 node_modules
-custom_components/ihc
-.config/*.db
-.config/*.log
-.config/*.log.*
-.config/.storage
-.config/custom_components
-.config/ihc_manual_setup.yaml
-.config/blueprints
-.config/.HA_VERSION
+
+# Home Assistant configuration
+
+config/*
+!config/configuration.yaml
+custom_components/*
+!custom_components/ihcviewer/*
