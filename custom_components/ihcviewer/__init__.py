@@ -6,7 +6,7 @@ see http://www.dingus.dk for more information
 
 import logging
 import os.path
-from xmlrpc.client import Boolean, boolean
+from xmlrpc.client import boolean
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
