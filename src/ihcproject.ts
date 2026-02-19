@@ -37,7 +37,7 @@ export class IHCGroup extends IHCBase {
 
   constructor(node: Element) {
     super(node);
-    this.Note = node.attributes["note"].value;
+    this.Note = node.getAttribute("note") || "";
     this.FunctionBlocks = new Array();
     this.Products = new Array();
     this.FindAndAdd(node, "functionblock", (subnode: Element) => {
@@ -82,8 +82,8 @@ export class IHCProduct extends IHCBase {
     super(node);
     this.Inputs = new Array();
     this.Outputs = new Array();
-    this.Note = node.attributes["note"].value;
-    this.Position = node.attributes["position"].value;
+    this.Note = node.getAttribute("note") || "";
+    this.Position = node.getAttribute("position") || "";
     this.FindAndAdd(node, "airlink_input", (subnode: Element) => {
       this.Inputs.push(new IHCInput(subnode));
     });
@@ -131,7 +131,7 @@ export class IHCFunctionBlock extends IHCBase {
 
   constructor(node: Element) {
     super(node);
-    this.Note = node.attributes["note"].value;
+    this.Note = node.getAttribute("note") || "";
     this.Inputs = new Array();
     var inputs = node.ownerDocument.evaluate(
       "inputs/*",
