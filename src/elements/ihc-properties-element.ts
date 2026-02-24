@@ -121,7 +121,7 @@ export class IhcPropertiesElement extends LitElement {
         ${this.selected?.manual ? html`
           <button @click=${this.removeManual}>Remove manual setup</button>
           <div>
-            This resource is setup manually, and you can remove the manual setup by clicking the buttom above.
+            This resource is setup manually, and you can remove the manual setup by clicking the button above.
             (A restart is required)
           </div>
         ` : ""}
