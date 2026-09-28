@@ -8,7 +8,12 @@ from homeassistant.core import callback
 
 from .apibase import ApiBase
 from .mapper import IhcMapper
-from .yamlhelper import get_controller_conf, read_manual_setup, write_manual_setup
+from .yamlhelper import (
+    find_manual_platform,
+    get_controller_conf,
+    read_manual_setup,
+    write_manual_setup,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,7 +53,12 @@ class ApiManualLight(ApiBase):
         off_id: int,
     ):
         """Make a new light"""
-        if IhcMapper.ismapped(controller_id, id):
+        # The file is read as well as the mapping: the mapping only knows the
+        # ids that are entities, so a resource added but not yet loaded could
+        # otherwise be added a second time.
+        if find_manual_platform(self.hass, controller_id, id) or IhcMapper.ismapped(
+            controller_id, id
+        ):
             raise Exception("IHC resource id already added")
 
         conf = read_manual_setup(self.hass)

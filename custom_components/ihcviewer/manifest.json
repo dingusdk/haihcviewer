@@ -13,7 +13,7 @@
   "homeassistant": "0.114.0",
   "requirements": [
     "ihcsdk==2.8.10",
-    "ruamel.yaml==0.17.15"
+    "ruamel.yaml>=0.17.21"
   ],
   "config_flow": true,
   "documentation": "https://github.com/dingusdk/haihcviewer",
