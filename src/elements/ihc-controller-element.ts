@@ -11,6 +11,7 @@ require("./ihc-info-element");
 require("./ihc-log-element");
 require("./ihc-properties-element");
 require("./ihc-tree-node");
+require("./loader-element");
 
 @customElement("ihc-controller")
 export class IhcControllerElement extends LitElement {
@@ -27,6 +28,11 @@ export class IhcControllerElement extends LitElement {
 
   @property({ type: Boolean, attribute: false })
   public isProjectLoading = false;
+
+  // Why the project could not be loaded, shown on the tab instead of a
+  // spinner that never stops
+  @property({ type: String, attribute: false })
+  public loadError: string = null;
 
   @property({ type: Object, attribute: false })
   public selected = null;
@@ -95,6 +101,10 @@ export class IhcControllerElement extends LitElement {
         color: var(--text-primary-color);
         font-weight: bold;
       }
+      #loaderror {
+        padding: 10px;
+        color: var(--error-color, #db4437);
+      }
       `
     ];
   }
@@ -112,7 +122,12 @@ export class IhcControllerElement extends LitElement {
             <div class="tab-button ${this.selectedtab == 2 ? 'selected' : ''}" @click=${this.selectTab} data-tabid='2'>Info</div>
           </div>
           <div id="project" class="flex-container">
-            ${this.isProjectLoading ? html`<div class="loader"></div>` : ""}
+            ${this.isProjectLoading ? html`<ihc-loader></ihc-loader>` : ""}
+            ${this.loadError ? html`
+              <div id="loaderror">
+                <div>${this.loadError}</div>
+                <div>The Home Assistant log has the details.</div>
+              </div>` : ""}
             <div id="ihcprojecttree" @select=${this.onSelectNode}>
               ${this.render_groups()}
             </div>
@@ -161,21 +176,32 @@ export class IhcControllerElement extends LitElement {
 
   async loadController() {
     this.isProjectLoading = true;
-    this.ihcmapping = await IHCManager.instance.get(this.controllerId).getMapping();
-    // If any entityes are new will we require restart
-    for (let id in this.ihcmapping) {
-      let entity = this.ihcmapping[id];
-      if ('changed' in entity) {
-        let restartevent = new CustomEvent("restartrequired", { bubbles: true, composed: true });
-        this.dispatchEvent(restartevent);
-        break;
+    this.loadError = null;
+    // Everything below has to be able to fail without leaving the tab loading
+    // forever. A failing request used to leave the mapping null, updateProject
+    // then threw on `in null`, and because loadController is called without
+    // being awaited the spinner just kept turning with nothing on screen to
+    // say what had happened.
+    try {
+      this.ihcmapping = await IHCManager.instance.get(this.controllerId).getMapping();
+      // If any entityes are new will we require restart
+      for (let id in this.ihcmapping) {
+        let entity = this.ihcmapping[id];
+        if ('changed' in entity) {
+          let restartevent = new CustomEvent("restartrequired", { bubbles: true, composed: true });
+          this.dispatchEvent(restartevent);
+          break;
+        }
       }
+      this.ihcproject = await IHCManager.instance.get(this.controllerId).getProject();
+      if (this.ihcproject) {
+        this.updateProject(this.ihcproject);
+      }
+    } catch (err) {
+      this.loadError = `${err}`;
+    } finally {
+      this.isProjectLoading = false;
     }
-    this.ihcproject = await IHCManager.instance.get(this.controllerId).getProject();
-    if (this.ihcproject) {
-      this.updateProject(this.ihcproject);
-    }
-    this.isProjectLoading = false;
   }
 
   // Update the iconclass of connected resources
