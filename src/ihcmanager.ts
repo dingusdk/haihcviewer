@@ -64,12 +64,13 @@ class IHCController {
 
     if (this.project == null) {
       let response = await IHCManager.instance.fetchWithAuth(`/api/ihcviewer/project/${this.controllerId}`);
-      if (response.ok) {
-        let projectdata = await response.text();
-        let xmlparser = new DOMParser();
-        let projectxml = xmlparser.parseFromString(projectdata, "text/xml");
-        this.project = new IHCProject(projectxml);
+      if (!response.ok) {
+        throw new Error(`Could not read the ihc project (${response.status} ${response.statusText})`);
       }
+      let projectdata = await response.text();
+      let xmlparser = new DOMParser();
+      let projectxml = xmlparser.parseFromString(projectdata, "text/xml");
+      this.project = new IHCProject(projectxml);
     }
     return this.project;
   }
@@ -78,9 +79,10 @@ class IHCController {
 
     if (this.ihcmapping == null) {
       let response = await IHCManager.instance.fetchWithAuth(`/api/ihcviewer/mapping/${this.controllerId}`);
-      if (response.ok) {
-        this.ihcmapping = await response.json();
+      if (!response.ok) {
+        throw new Error(`Could not read the ihc mapping (${response.status} ${response.statusText})`);
       }
+      this.ihcmapping = await response.json();
     }
     return this.ihcmapping;
   }

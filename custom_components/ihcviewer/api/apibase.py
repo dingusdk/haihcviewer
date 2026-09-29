@@ -2,7 +2,6 @@
 import logging
 
 from homeassistant.components.http import HomeAssistantView
-from homeassistant.components.ihc import IHC_CONTROLLER
 
 _LOGGER = logging.getLogger(__name__)
 
