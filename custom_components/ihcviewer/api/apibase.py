@@ -17,8 +17,12 @@ class ApiBase(HomeAssistantView):
         self.ihc_controller = None
 
     def initialize(self, controller_id):
-        """Initialize the view with the associated ihc controller"""
-        for entry_id, data in self.hass.data["ihc"].items():
+        """Initialize the view with the associated ihc controller.
+
+        The ihc integration takes itself out of hass.data while it is being
+        reloaded - and adding or removing reloads it now - so a request that
+        arrives in those seconds must not fail on the lookup itself."""
+        for entry_id, data in self.hass.data.get("ihc", {}).items():
             if data['controller_id'] == controller_id:
                 self.ihc_controller = data['controller']
                 return

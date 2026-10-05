@@ -47,5 +47,6 @@ class ApiGetResource(ApiBase):
             "entity_id": entity_id,
             "manual": manual,
             "state": state,
+            "pending_removal": IhcMapper.ispendingremoval(controllerid, id),
         }
         return self.json(json)

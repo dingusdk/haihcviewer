@@ -7,6 +7,7 @@ from http import HTTPStatus
 from homeassistant.core import callback
 
 from .apibase import ApiBase
+from .change import put_into_effect
 from .mapper import IhcMapper
 from .yamlhelper import (
     find_manual_platform,
@@ -38,10 +39,14 @@ class ApiManualSwitch(ApiBase):
         name = data.get("name")
         on_id = data.get("on_id")
         off_id = data.get("off_id")
+        await IhcMapper.get_mapping(self.hass, controllerid)
+        await self.hass.async_add_executor_job(
+            self.make_switch, controllerid, id, name, on_id, off_id
+        )
+        # The change is put into Home Assistant here and now, so there is
+        # nothing left to press - and no restart
         return self.json(
-            await self.hass.async_add_executor_job(
-                self.make_switch, controllerid, id, name, on_id, off_id
-            )
+            await put_into_effect(self.hass, controllerid, id, "switch")
         )
 
     def make_switch(
@@ -67,5 +72,5 @@ class ApiManualSwitch(ApiBase):
             controller_conf["switch"] = [switch]
         else:
             controller_conf["switch"].append(switch)
-        IhcMapper.set(controller_id, id, "not loaded yet. HA restart required.", True)
+        IhcMapper.set(controller_id, id, "not created yet. Reload the ihc integration.", True)
         write_manual_setup(self.hass, conf)

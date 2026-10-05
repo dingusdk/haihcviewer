@@ -16,7 +16,39 @@ class IhcMapper:
     @staticmethod
     def ismapped(controller_id, id) -> Boolean:
         """Returns True if the specified ihc id is already mapped"""
-        return id in IhcMapper.ihc_mapping[controller_id]
+        mapping = IhcMapper.ihc_mapping[controller_id].get(id)
+        return mapping is not None and not mapping.get("removed", False)
+
+    @staticmethod
+    def ispendingremoval(controller_id, id) -> Boolean:
+        """Returns True if the id has been removed but the entity is still there"""
+        mapping = IhcMapper.ihc_mapping[controller_id].get(id)
+        return mapping is not None and mapping.get("removed", False)
+
+    @staticmethod
+    def markremoved(controller_id, id):
+        """Mark an ihc id as removed from the manual setup.
+
+        The entity is still there until the ihc integration has been reloaded,
+        but the id must be free again right away. Otherwise moving a resource
+        from one platform to another - say a button from switch to
+        binary_sensor - takes two restarts instead of one: the first one only
+        to make the id available again."""
+        mapping = IhcMapper.ihc_mapping[controller_id].get(id)
+        if mapping is None:
+            return
+        mapping["removed"] = True
+        mapping["manual"] = False
+        mapping["changed"] = True
+
+    @staticmethod
+    def forget(controller_id):
+        """Forget the mapping for a controller.
+
+        Used after the ihc integration has been reloaded, where the entities
+        have been created from scratch. The mapping is rebuilt from the entity
+        states the next time it is asked for."""
+        IhcMapper.ihc_mapping.pop(controller_id, None)
 
     @staticmethod
     def get(controller_id, id):

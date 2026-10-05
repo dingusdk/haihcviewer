@@ -7,6 +7,7 @@ from http import HTTPStatus
 from homeassistant.core import callback
 
 from .apibase import ApiBase
+from .change import put_into_effect
 from .mapper import IhcMapper
 from .yamlhelper import (
     find_manual_platform,
@@ -38,10 +39,14 @@ class ApiManualBinarySensor(ApiBase):
         name = data.get("name")
         type = data.get("type")
         inverting = data.get("inverted")
+        await IhcMapper.get_mapping(self.hass, controllerid)
+        await self.hass.async_add_executor_job(
+            self.make_binary_sensor, controllerid, id, name, type, inverting
+        )
+        # The change is put into Home Assistant here and now, so there is
+        # nothing left to press - and no restart
         return self.json(
-            await self.hass.async_add_executor_job(
-                self.make_binary_sensor, controllerid, id, name, type, inverting
-            )
+            await put_into_effect(self.hass, controllerid, id, "binary_sensor")
         )
 
     def make_binary_sensor(
@@ -67,5 +72,5 @@ class ApiManualBinarySensor(ApiBase):
             controller_conf["binary_sensor"] = [binary_sensor]
         else:
             controller_conf["binary_sensor"].append(binary_sensor)
-        IhcMapper.set(controller_id, id, "not loaded yet. HA restart required.", True)
+        IhcMapper.set(controller_id, id, "not created yet. Reload the ihc integration.", True)
         write_manual_setup(self.hass, conf)

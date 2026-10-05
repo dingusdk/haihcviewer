@@ -24,6 +24,7 @@ from .api.manual_sensor import ApiManualSensor
 from .api.manual_switch import ApiManualSwitch
 from .api.mapping import ApiMapping
 from .api.project import ApiProject
+from .api.reload import ApiReload
 from .api.setboolresource import ApiSetBoolResource
 from .api.systeminfo import ApiSystemInfo
 
@@ -52,6 +53,7 @@ async def async_setup(hass: HomeAssistant, config):
     hass.http.register_view(ApiManualSwitch(hass))
     hass.http.register_view(ApiMapping(hass))
     hass.http.register_view(ApiProject(hass))
+    hass.http.register_view(ApiReload(hass))
     hass.http.register_view(ApiSetBoolResource(hass))
     hass.http.register_view(ApiSystemInfo(hass))
     return True
