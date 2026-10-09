@@ -7,6 +7,7 @@ from http import HTTPStatus
 from homeassistant.core import callback
 
 from .apibase import ApiBase
+from .change import put_into_effect
 from .mapper import IhcMapper
 from .yamlhelper import (
     find_manual_platform,
@@ -37,10 +38,14 @@ class ApiManualSensor(ApiBase):
         id = int(data["id"])
         name = data.get("name")
         unit = data.get("unit")
+        await IhcMapper.get_mapping(self.hass, controllerid)
+        await self.hass.async_add_executor_job(
+            self.make_sensor, controllerid, id, name, unit
+        )
+        # The change is put into Home Assistant here and now, so there is
+        # nothing left to press - and no restart
         return self.json(
-            await self.hass.async_add_executor_job(
-                self.make_sensor, controllerid, id, name, unit
-            )
+            await put_into_effect(self.hass, controllerid, id, "sensor")
         )
 
     def make_sensor(self, controller_id: str, id: int, name: str, unit: str):
@@ -62,5 +67,5 @@ class ApiManualSensor(ApiBase):
             controller_conf["sensor"] = [sensor]
         else:
             controller_conf["sensor"].append(sensor)
-        IhcMapper.set(controller_id, id, "not loaded yet. HA restart required.", True)
+        IhcMapper.set(controller_id, id, "not created yet. Reload the ihc integration.", True)
         write_manual_setup(self.hass, conf)

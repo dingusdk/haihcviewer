@@ -204,6 +204,26 @@ export class IhcControllerElement extends LitElement {
     }
   }
 
+  // Called after the ihc integration has been reloaded. The entities have been
+  // created from scratch, so the mapping must be fetched again and the tree
+  // redrawn to get the connected markers right. The project is kept, so
+  // nothing is downloaded from the controller and the tree stays open where
+  // the user left it.
+  async refreshAfterReload() {
+    IHCManager.instance.get(this.controllerId).clearMapping();
+    this.ihcmapping = await IHCManager.instance.get(this.controllerId).getMapping();
+    if (this.ihcproject == null) return;
+    this.updateProject(this.ihcproject);
+    for (let group of this.ihcproject.Groups) {
+      var treenode = this.shadowRoot.getElementById(`group_${group.Id}`) as IhcTreeNode;
+      if (treenode) treenode.refresh();
+    }
+    if (this.selected) {
+      var properties: IhcPropertiesElement = this.shadowRoot.getElementById("ihcproperties") as IhcPropertiesElement;
+      await properties.setSelected(this.selected);
+    }
+  }
+
   // Update the iconclass of connected resources
   updateProject(project) {
     for (let group of project.Groups) {

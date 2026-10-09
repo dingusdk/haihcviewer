@@ -75,6 +75,12 @@ class IHCController {
     return this.project;
   }
 
+  // Forget the mapping so it is fetched again. The project is kept - it comes
+  // from the controller and does not change when the ihc integration reloads.
+  clearMapping() {
+    this.ihcmapping = null;
+  }
+
   async getMapping() {
 
     if (this.ihcmapping == null) {

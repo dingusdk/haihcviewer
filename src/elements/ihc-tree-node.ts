@@ -208,6 +208,18 @@ export class IhcTreeNode extends LitElement {
     }
   }
 
+  // Draw this node and the children that are currently shown again. The data
+  // objects keep their identity when the mapping changes, so lit has no way of
+  // seeing that an iconclass was updated.
+  refresh() {
+    this.requestUpdate();
+    if (!this.expanded || !this.data.Children) return;
+    for (let child of this.data.Children) {
+      var treenode = this.shadowRoot.getElementById(`treenode_${child.Id}`) as IhcTreeNode;
+      if (treenode) treenode.refresh();
+    }
+  }
+
   getExpandClasses(expanded) {
     return expanded ? "expandicon expanded" : "expandicon";
   }

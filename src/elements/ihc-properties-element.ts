@@ -122,7 +122,13 @@ export class IhcPropertiesElement extends LitElement {
           <button @click=${this.removeManual}>Remove manual setup</button>
           <div>
             This resource is setup manually, and you can remove the manual setup by clicking the button above.
-            (A restart is required)
+          </div>
+        ` : ""}
+        ${this.selected?.pending_removal ? html`
+          <div>
+            The manual setup has been removed, but the ihc integration could not
+            be reloaded, so the entity is still there until it is. The resource id
+            is free and can be added again right away.
           </div>
         ` : ""}
         ${this.action_binary_sensor ? html`<button @click=${() => { this.showDialog("binary-dlg") }}>Binary sensor</button>` : ""}
@@ -224,14 +230,13 @@ export class IhcPropertiesElement extends LitElement {
       type: dlg.type,
       inverted: dlg.inverted,
     };
-    await this.apiRequest(`/api/ihcviewer/manual/binarysensor/${this.controllerId}`,
+    let answer = await this.apiRequest(`/api/ihcviewer/manual/binarysensor/${this.controllerId}`,
       data, 'POST');
     this.selectednode.data.iconclass += " connected";
     this.selectednode.requestUpdate();
     // Reload properties
     await this.setSelected(this.selectednode);
-    let restartevent = new CustomEvent("restartrequired", { bubbles: true, composed: true });
-    this.dispatchEvent(restartevent);
+    this.putIntoEffect(answer);
   }
 
   async makeLight() {
@@ -245,10 +250,11 @@ export class IhcPropertiesElement extends LitElement {
       data['on_id'] = dlg.on_id
     if (dlg.off_id != null)
       data['off_id'] = dlg.off_id
-    await this.apiRequest(`/api/ihcviewer/manual/light/${this.controllerId}`,
+    let answer = await this.apiRequest(`/api/ihcviewer/manual/light/${this.controllerId}`,
       data, 'POST');
     // Reload properties
     await this.setSelected(this.selectednode);
+    this.putIntoEffect(answer);
   }
 
   async makeSwitch() {
@@ -263,10 +269,11 @@ export class IhcPropertiesElement extends LitElement {
     if (dlg.off_id != null)
       data['off_id'] = dlg.off_id
 
-    await this.apiRequest(`/api/ihcviewer/manual/switch/${this.controllerId}`,
+    let answer = await this.apiRequest(`/api/ihcviewer/manual/switch/${this.controllerId}`,
       data, 'POST');
     // Reload properties
     await this.setSelected(this.selectednode);
+    this.putIntoEffect(answer);
   }
 
   async makeSensor() {
@@ -277,18 +284,39 @@ export class IhcPropertiesElement extends LitElement {
       name: dlg.name,
       unit: dlg.unit
     };
-    await this.apiRequest(`/api/ihcviewer/manual/sensor/${this.controllerId}`,
+    let answer = await this.apiRequest(`/api/ihcviewer/manual/sensor/${this.controllerId}`,
       data, 'POST');
     // Reload properties
     await this.setSelected(this.selectednode);
+    this.putIntoEffect(answer);
   }
 
   async removeManual() {
 
     var id = this.selected.id;
-    await this.apiRequest(`/api/ihcviewer/manual/remove/${this.controllerId}/${id}`, '', 'POST');
+    let answer = await this.apiRequest(`/api/ihcviewer/manual/remove/${this.controllerId}/${id}`, '', 'POST');
+    this.selectednode.data.iconclass = this.selectednode.data.iconclass.replace(" connected", "");
+    this.selectednode.requestUpdate();
     // Reload properties
     await this.setSelected(this.selectednode);
+    this.putIntoEffect(answer);
+  }
+
+  // Adding and removing reload the ihc integration by themselves, so by the
+  // time the answer comes back the change is in effect, and the panel redraws
+  // the tree and the properties from the new entities. Only if the reload did
+  // not go through does the "Reload ihc" button in the header appear, to try
+  // again. An answer that is not JSON means the request itself failed, and
+  // nothing was changed.
+  putIntoEffect(answer: string) {
+    let result;
+    try {
+      result = JSON.parse(answer);
+    } catch {
+      return;
+    }
+    let name = result?.reloaded ? "ihcreloaded" : "restartrequired";
+    this.dispatchEvent(new CustomEvent(name, { bubbles: true, composed: true }));
   }
 
   async runtimeBoolOn() {
